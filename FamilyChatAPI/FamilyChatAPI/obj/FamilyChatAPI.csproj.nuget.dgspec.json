@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GITHUB\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {}
+    "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {}
   },
   "projects": {
-    "D:\\GITHUB\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {
+    "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GITHUB\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
+        "projectUniqueName": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
         "projectName": "FamilyChatAPI",
-        "projectPath": "D:\\GITHUB\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
+        "projectPath": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
         "packagesPath": "C:\\Users\\iftek\\.nuget\\packages\\",
-        "outputPath": "D:\\GITHUB\\FamilyChatAPI\\FamilyChatAPI\\obj\\",
+        "outputPath": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\iftek\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,6 +40,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[6.0.25, )"

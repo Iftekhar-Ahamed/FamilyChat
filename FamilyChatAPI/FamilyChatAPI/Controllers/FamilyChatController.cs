@@ -1,5 +1,6 @@
 using FamilyChatAPI.Dtos;
 using FamilyChatAPI.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FamilyChatAPI.Controllers
@@ -17,7 +18,22 @@ namespace FamilyChatAPI.Controllers
         [Route("CreateUser")]
         public async Task<IActionResult> CreateUser(CreateUserDto UserInfotmation)
         {
-            return Ok(_IFamilyChat.CreateUser(UserInfotmation));
+           var dt = await _IFamilyChat.CreateUser(UserInfotmation);
+            return Ok(dt);
+        }
+        [HttpGet]
+        [Route("UserLogIn")]
+        public async Task<IActionResult> UserLogIn(string UserName,string Password)
+        {
+            var dt = await _IFamilyChat.UserLogIn(UserName,Password);
+            return Ok(dt);
+        }
+        [Authorize]
+        [HttpGet]
+        [Route("GetAllMessage")]
+        public async Task<IActionResult> GetAllMessage()
+        {
+            return Ok("OK");
         }
     }
 }

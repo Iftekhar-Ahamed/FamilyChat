@@ -7,5 +7,6 @@ namespace FamilyChatAPI.Helper
         [DataMember]
         public string message {  get; set; }
         public int statusCode { get; set; }
+        public string Token { get; set; }
     }
 }

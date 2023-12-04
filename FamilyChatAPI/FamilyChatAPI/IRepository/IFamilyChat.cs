@@ -6,6 +6,7 @@ namespace FamilyChatAPI.IRepository
 {
     public interface IFamilyChat
     {
-        MessageHelper CreateUser(CreateUserDto UserInfotmation);
+        Task<MessageHelper> CreateUser(CreateUserDto UserInfotmation);
+        Task<MessageHelper> UserLogIn(string UserName, string Password);
     }
 }

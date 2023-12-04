@@ -1,8 +1,8 @@
 ******************Write Scaffold ****************
 
-scaffold-DbContext "Data Source=IFTEKHAR\SQLEXPRESS;Initial Catalog = FamilyChat;Connect Timeout=30;Encrypt=False;Trusted_Connection=True;ApplicationIntent=ReadWrite;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir "Models/Write" -ContextDir "DbContexts/Write" -Context "WriteDbContext"  -t dbo.tblUser, dbo.tblChat, dbo.tblMessage  -f
+scaffold-DbContext "Data Source=IFTEKHAR\SQLEXPRESS;Initial Catalog = FamilyChatDB;Connect Timeout=30;Encrypt=False;Trusted_Connection=True;ApplicationIntent=ReadWrite;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir "Models/Write" -ContextDir "DbContexts/Write" -Context "WriteDbContext"  -t dbo.tblUser, dbo.tblChat, dbo.tblMessage  -f
 
 
 ******************Read Scaffold ****************
 
-scaffold-DbContext "Data Source=IFTEKHAR\SQLEXPRESS;Initial Catalog = FamilyChat;Connect Timeout=30;Encrypt=False;Trusted_Connection=True;ApplicationIntent=ReadWrite;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir "Models/Read" -ContextDir "DbContexts/Read" -Context "ReadDbContext"  -t dbo.tblUser, dbo.tblChat, dbo.tblMessage  -f
+scaffold-DbContext "Data Source=IFTEKHAR\SQLEXPRESS;Initial Catalog = FamilyChatDB;Connect Timeout=30;Encrypt=False;Trusted_Connection=True;ApplicationIntent=ReadWrite;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir "Models/Read" -ContextDir "DbContexts/Read" -Context "ReadDbContext"  -t dbo.tblUser, dbo.tblChat, dbo.tblMessage  -f

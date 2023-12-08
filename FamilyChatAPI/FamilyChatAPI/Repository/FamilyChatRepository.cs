@@ -75,9 +75,9 @@ namespace FamilyChatAPI.Repository
             {
                 MessageHelper messageHelper = new MessageHelper();
 
-                var res = await _contextR.TblChats.Where(x => (x.IntFromUserId == from || x.IntToUserId == from) && x.IsAcitve == true).FirstOrDefaultAsync();
+                var res = await _contextR.TblChats.Where(x => (x.IntFromUserId == from && x.IntToUserId == to) || (x.IntToUserId == from && x.IntFromUserId == to ) && x.IsAcitve == true).FirstOrDefaultAsync();
 
-                if (res!=null)
+                if (res==null)
                 {
                     var data = new TblChat
                     {

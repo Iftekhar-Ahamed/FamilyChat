@@ -52,7 +52,7 @@ namespace FamilyChatAPI.Repository
                 
                 
                 MessageHelper msg = new MessageHelper();
-                msg.message = data!=null ? "Welcome "+UserName: "Wrong Username and Password";
+                msg.message = "Welcome "+UserName;
                 UserDto usr = new UserDto();
 
                 if (data != null) {
@@ -60,7 +60,10 @@ namespace FamilyChatAPI.Repository
                     usr.UserId = data.IntUserId;
                     msg.Token = _jwtToken.GenerateToken(usr);
                 }
-
+                else
+                {
+                    throw new Exception("Wrong Username and Password");
+                }
                 msg.statusCode = 200;
                 return msg;
             }
@@ -93,8 +96,7 @@ namespace FamilyChatAPI.Repository
                     }
                     else
                     {
-                        messageHelper.message = "Database Connection Problem";
-                        messageHelper.statusCode = 400;
+                        throw new Exception("Database Connection Problem");
                     }
                     
                 }

@@ -5,14 +5,17 @@ using FamilyChatAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using FamilyChatAPI.MiddlewareExtensions;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -49,6 +52,19 @@ builder.Services.AddSwaggerGen(c =>
 //Dependency Injection
 builder.Services.AddScoped<IFamilyChat, FamilyChatRepository>();
 builder.Services.AddScoped<IJwtToken,JwtTokenRepository>();
+builder.Services.AddScoped<ChatHub>();
+builder.Services.AddScoped<ISubscribeNotificationTableDependency , SubscribeNotificationTableDependencyRepository>();
+
+//SignalR
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        builder => builder
+            .WithOrigins("http://FamilyChat.somee.com")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 string connection = builder.Configuration.GetConnectionString("MainConnection");
 builder.Services.AddDbContext<ReadDbContext>(options => options.UseSqlServer(connection), ServiceLifetime.Transient);
@@ -73,8 +89,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 
-
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigins");
+
+app.MapHub<ChatHub>("/notificationHub");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -92,5 +111,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseSqlTableDependency<SubscribeNotificationTableDependencyRepository>(connection);
 
 app.Run();

@@ -80,6 +80,10 @@ namespace FamilyChatAPI.DbContexts.Read
 
                 entity.Property(e => e.IsActive).HasColumnName("isActive");
 
+                entity.Property(e => e.StrConnectionId)
+                    .HasMaxLength(100)
+                    .HasColumnName("strConnectionId");
+
                 entity.Property(e => e.StrPassword)
                     .HasMaxLength(8)
                     .HasColumnName("strPassword");

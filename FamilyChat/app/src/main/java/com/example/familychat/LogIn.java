@@ -103,6 +103,7 @@ public class LogIn extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     public void buttonColorChange(View v,Button colorButton){
         int color = Color.parseColor("#e74c3c");
         colorButton.setBackgroundColor(color);

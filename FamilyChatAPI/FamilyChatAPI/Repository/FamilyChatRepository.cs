@@ -5,8 +5,10 @@ using FamilyChatAPI.Dtos;
 using FamilyChatAPI.Helper;
 using FamilyChatAPI.IRepository;
 using FamilyChatAPI.Models.Write;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace FamilyChatAPI.Repository
@@ -16,7 +18,7 @@ namespace FamilyChatAPI.Repository
         private readonly ReadDbContext _contextR;
         private readonly WriteDbContext _contextW;
         private readonly IJwtToken _jwtToken;
-        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext,IJwtToken jwtToken)
+        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext, IJwtToken jwtToken)
         {
             _contextR = readDbContext;
             _contextW = writeDbContext;
@@ -49,10 +51,10 @@ namespace FamilyChatAPI.Repository
             try
             {
                 var data = await _contextR.TblUsers.Where(x => x.StrUserName == UserName && x.StrPassword == Password).FirstOrDefaultAsync();
-                
-                
+
+
                 MessageHelper msg = new MessageHelper();
-                msg.message = "Welcome "+UserName;
+                msg.message = "Welcome " + UserName;
                 UserDto usr = new UserDto();
 
                 if (data != null) {
@@ -78,9 +80,9 @@ namespace FamilyChatAPI.Repository
             {
                 MessageHelper messageHelper = new MessageHelper();
 
-                var res = await _contextR.TblChats.Where(x => (x.IntFromUserId == from && x.IntToUserId == to) || (x.IntToUserId == from && x.IntFromUserId == to ) && x.IsAcitve == true).FirstOrDefaultAsync();
+                var res = await _contextR.TblChats.Where(x => (x.IntFromUserId == from && x.IntToUserId == to) || (x.IntToUserId == from && x.IntFromUserId == to) && x.IsAcitve == true).FirstOrDefaultAsync();
 
-                if (res==null)
+                if (res == null)
                 {
                     var data = new TblChat
                     {
@@ -89,7 +91,7 @@ namespace FamilyChatAPI.Repository
                         IsAcitve = true
                     };
                     await _contextW.AddAsync(data);
-                    if ( await _contextW.SaveChangesAsync()> 0)
+                    if (await _contextW.SaveChangesAsync() > 0)
                     {
                         messageHelper.message = "Successfully Added";
                         messageHelper.statusCode = 200;
@@ -98,7 +100,7 @@ namespace FamilyChatAPI.Repository
                     {
                         throw new Exception("Database Connection Problem");
                     }
-                    
+
                 }
                 else
                 {
@@ -107,7 +109,7 @@ namespace FamilyChatAPI.Repository
 
                 return messageHelper;
 
-            }catch (Exception ex)
+            } catch (Exception ex)
             {
                 throw ex;
             }
@@ -118,20 +120,22 @@ namespace FamilyChatAPI.Repository
             try
             {
 
-                var listOfConnection = await (from c in _contextR.TblChats
-                                              join u in _contextR.TblUsers on (c.IntFromUserId==id?c.IntToUserId:c.IntFromUserId) equals u.IntUserId
-                                              where (c.IntFromUserId == id || c.IntToUserId == id)
-                                              && c.IsAcitve == true
-                                              select new ConnectionListDto()
-                                              {
-                                                  ChatId = c.IntChatId,
-                                                  ChatName = u.StrUserName
-                                              }).ToListAsync();
-                return listOfConnection;
+
+                var listOfConnectionList = await (from c in _contextR.TblChats
+                                                  join u in _contextR.TblUsers on (c.IntFromUserId == id ? c.IntToUserId : c.IntFromUserId) equals u.IntUserId
+                                                  where (c.IntFromUserId == id || c.IntToUserId == id)
+                                                  && c.IsAcitve == true
+                                                  select new ConnectionListDto()
+                                                  {
+                                                      ChatId = c.IntChatId,
+                                                      ChatName = u.StrUserName
+                                                  }).ToListAsync();
+                return listOfConnectionList;
             } catch (Exception ex)
             {
                 throw ex;
             }
         }
+        
     }
 }

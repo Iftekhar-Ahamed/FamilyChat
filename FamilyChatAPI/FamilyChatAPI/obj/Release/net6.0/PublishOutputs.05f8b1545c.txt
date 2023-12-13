@@ -5,6 +5,8 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\F
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\FamilyChatAPI.runtimeconfig.json
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\FamilyChatAPI.pdb
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.Connections.Abstractions.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.SignalR.Common.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Data.SqlClient.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.EntityFrameworkCore.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.EntityFrameworkCore.Abstractions.dll
@@ -12,6 +14,7 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\M
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.EntityFrameworkCore.SqlServer.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Extensions.Caching.Memory.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Extensions.DependencyInjection.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Extensions.Features.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Identity.Client.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.IdentityModel.JsonWebTokens.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.IdentityModel.Logging.dll
@@ -20,6 +23,7 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\M
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.IdentityModel.Tokens.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.OpenApi.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\TableDependency.SqlClient.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -27,6 +31,7 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\S
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.Diagnostics.DiagnosticSource.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.Drawing.Common.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.IO.Pipelines.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.Runtime.Caching.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.Security.Cryptography.ProtectedData.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\System.Security.Permissions.dll
@@ -38,6 +43,10 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\r
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win7-x64\native\sni.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win7-x86\native\sni.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\unix\lib\netstandard1.3\System.Data.SqlClient.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netstandard1.3\System.Data.SqlClient.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll

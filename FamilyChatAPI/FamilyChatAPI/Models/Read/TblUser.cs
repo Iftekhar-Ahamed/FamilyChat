@@ -8,6 +8,7 @@ namespace FamilyChatAPI.Models.Read
         public byte IntUserId { get; set; }
         public string StrUserName { get; set; } = null!;
         public string StrPassword { get; set; } = null!;
+        public string? StrConnectionId { get; set; }
         public bool IsActive { get; set; }
     }
 }

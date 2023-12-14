@@ -34,14 +34,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     public void onBindViewHolder(ChatViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
 
-        if (message.isSender()) {
+        if (message.IsUser) {
             holder.leftChatLayout.setVisibility(View.GONE);
             holder.rightChatLayout.setVisibility(View.VISIBLE);
-            holder.rightChatTextView.setText(message.getMessageText());
+            holder.rightChatTextView.setText(message.messageText);
         } else {
             holder.leftChatLayout.setVisibility(View.VISIBLE);
             holder.rightChatLayout.setVisibility(View.GONE);
-            holder.leftChatTextView.setText(message.getMessageText());
+            holder.leftChatTextView.setText(message.messageText);
         }
     }
 

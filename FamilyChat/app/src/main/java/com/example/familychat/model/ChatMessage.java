@@ -4,21 +4,13 @@ import android.content.Context;
 
 import java.util.List;
 
-public class ChatMessage {
-    private String messageText;
-    private boolean isSender;
-
-    public ChatMessage(String messageText, boolean isSender) {
+public class ChatMessage extends UserContext {
+    public String messageText;
+    public ChatMessage(UserContext user,String messageText){
+        super(user);
         this.messageText = messageText;
-        this.isSender = isSender;
     }
+    public ChatMessage(){
 
-
-    public String getMessageText() {
-        return messageText;
-    }
-
-    public boolean isSender() {
-        return isSender;
     }
 }

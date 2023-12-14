@@ -9,23 +9,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.familychat.model.ChatMessage;
+import com.example.familychat.model.ChatRooms;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChatActivity extends AppCompatActivity {
-    private ImageButton backBtn;
-    private boolean chatFragmentAdded = false;
-    private TextView otherUsername;
-    private ImageView imageView;
-    private HubConnection hubConnection;
+    HubConnection hubConnection;
+    private Map<String, ChatRooms> chatRoomsHashMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        backBtn = findViewById(R.id.back_btn);
-        otherUsername = findViewById(R.id.other_username);
-        imageView = findViewById(R.id.profile_pic_image_view);
+
+        ImageButton backBtn = findViewById(R.id.back_btn);
 
         backBtn.setOnClickListener((v) -> {
             onBackPressed();
@@ -33,15 +35,23 @@ public class ChatActivity extends AppCompatActivity {
 
         // Setup SignalR
         setupSignalR();
+        showChatFragment("123");
 
-        if (savedInstanceState != null) {
-            chatFragmentAdded = savedInstanceState.getBoolean("chatFragmentAdded", true);
-        } else {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new ChatFragment(hubConnection))
-                    .commit();
-            chatFragmentAdded = true;
+    }
+    private void showChatFragment(String userId) {
+        ChatRooms chatRooms = getChatFragment(userId);
+        if (chatRooms == null) {
+            chatRooms = new ChatRooms();
+            chatRooms.chatFragment = new ChatFragment(hubConnection);
+            chatRoomsHashMap.put(userId, chatRooms);
         }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, chatRooms.chatFragment)
+                .commit();
+    }
+    private ChatRooms getChatFragment(String userId) {
+        return chatRoomsHashMap.get(userId);
     }
     private void setupSignalR() {
         String url = "http://familychat.somee.com/notificationHub";
@@ -50,15 +60,20 @@ public class ChatActivity extends AppCompatActivity {
             hubConnection = HubConnectionBuilder
                     .create(url)
                     .build();
-            hubConnection.start().blockingAwait();
 
             hubConnection.on("broadcastMessage", (message) -> {
                 // Handle the received message
                 runOnUiThread(() -> {
-                    // Notify ChatFragment about the new message
-                    ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (chatFragment != null) {
-                        chatFragment.onNewMessage(message);
+                    try {
+                        // Notify ChatFragment about the new message
+                        ObjectMapper om = new ObjectMapper();
+                        ChatMessage msg = om.readValue(message, ChatMessage.class);
+                        ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (chatFragment != null) {
+                            chatFragment.onNewMessage(msg);
+                        }
+                    }catch (Exception e){
+                        System.out.println(e);
                     }
                 });
             }, String.class);
@@ -78,21 +93,5 @@ public class ChatActivity extends AppCompatActivity {
             hubConnection.start().blockingAwait();
             return null;
         }
-    }
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("chatFragmentAdded", chatFragmentAdded);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        chatFragmentAdded = savedInstanceState.getBoolean("chatFragmentAdded", true);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 }

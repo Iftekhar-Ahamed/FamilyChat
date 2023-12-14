@@ -6,6 +6,6 @@ namespace FamilyChatAPI.DTO
     {
         public string UserName { get; set; }
         public string PassWord { get; set; }
-        public decimal UserId { get; set; }
+        public long UserId { get; set; }
     }
 }

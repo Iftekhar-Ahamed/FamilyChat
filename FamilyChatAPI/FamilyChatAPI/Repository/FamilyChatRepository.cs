@@ -24,6 +24,22 @@ namespace FamilyChatAPI.Repository
             _contextW = writeDbContext;
             _jwtToken = jwtToken;
         }
+        public async Task<UserDto> GetUserById(long id)
+        {
+            try
+            {
+                var data = await _contextR.TblUsers.Where(x => x.IntUserId == id && x.IsActive == true).Select( u =>
+                    new UserDto
+                    {
+                        UserId = u.IntUserId,
+                        UserName = u.StrUserName
+                    }).FirstOrDefaultAsync();
+                return data;
+            }catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<MessageHelper> CreateUser(CreateUserDto UserInfotmation)
         {
             try

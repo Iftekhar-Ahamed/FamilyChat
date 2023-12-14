@@ -11,8 +11,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
 
 public class Home extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -45,6 +56,47 @@ public class Home extends AppCompatActivity {
                 return true;
             }
         });
+    }
+    void getConnectionList(){
+        /*try {
+            String baseUrl = "http://familychat.somee.com/FamilyChat/GetAllConnectionByUserId?id=1";
+
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                message = response.getString("message");
+                                token = response.getString("token");
+                                Toast.makeText(LogIn.this,  message, Toast.LENGTH_SHORT).show();
+                                Intent home = new Intent(LogIn.this, Home.class);
+                                startActivity(home);
+                                finish();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                        Toast.makeText(LogIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                        setInProgress(false);
+                                    }
+                                });
+                            }
+                        });
+                    queue.add(jsonObjectRequest);
+            }catch (Exception e){
+                e.printStackTrace();
+        }*/
+    }
+    void loadChats(){
+
     }
     @Override
     public void onBackPressed() {

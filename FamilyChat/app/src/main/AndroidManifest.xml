@@ -22,14 +22,14 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".LogIn"
+            android:name=".ChatActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".ChatActivity"
+            android:name=".LogIn"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>

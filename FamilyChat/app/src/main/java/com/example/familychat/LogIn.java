@@ -17,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.familychat.model.UserContext;
 
 
 import org.json.JSONException;
@@ -79,7 +80,22 @@ public class LogIn extends AppCompatActivity {
                                 message = response.getString("message");
                                 token = response.getString("token");
                                 Toast.makeText(LogIn.this,  message, Toast.LENGTH_SHORT).show();
+                                UserContext user;
+                                if(username.equals("Iftekhar")){
+                                    user = new UserContext();
+                                    user.IsUser = true;
+                                    user.UserId = 1;
+                                    user.name = "Iftekhar";
+                                    user.connectionId = "";
+                                }else {
+                                    user = new UserContext();
+                                    user.IsUser = true;
+                                    user.UserId = 2;
+                                    user.name = "Ifty";
+                                    user.connectionId = "";
+                                }
                                 Intent home = new Intent(LogIn.this, Home.class);
+                                home.putExtra("user", user);
                                 startActivity(home);
                                 finish();
                             } catch (JSONException e) {

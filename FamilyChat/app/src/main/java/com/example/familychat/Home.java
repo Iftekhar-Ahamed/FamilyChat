@@ -1,6 +1,7 @@
 package com.example.familychat;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -17,31 +18,53 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.familychat.model.ChatMessage;
+import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.SignalRManager;
+import com.example.familychat.model.UserContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.microsoft.signalr.HubConnection;
+import com.microsoft.signalr.HubConnectionBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Home extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
+    UserContext user;
+    HubConnection hubConnection;
+    private Map<String, ChatRooms> chatRoomsHashMap = new HashMap<>();
 
-    //ChatFragment chatFragment;
-    //ProfileFragment profileFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         searchButton = findViewById(R.id.main_search_btn);
 
+        SignalRManager.initialize(this);
+        hubConnection = SignalRManager.getHubConnection();
+        setupSignalR();
+
+
         searchButton.setOnClickListener((v)->{
             Toast.makeText(Home.this, "Search", Toast.LENGTH_SHORT).show();
-            //startActivity(new Intent(MainActivity.this,SearchUserActivity.class));
+            Intent intent = new Intent(Home.this,ChatActivity.class);
+            user = (UserContext) getIntent().getExtras().get("user");
+            intent.putExtra("user", user);
+            startActivity(intent);
         });
+
+
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -56,48 +79,57 @@ public class Home extends AppCompatActivity {
                 return true;
             }
         });
+
+
     }
-    void getConnectionList(){
-        /*try {
-            String baseUrl = "http://familychat.somee.com/FamilyChat/GetAllConnectionByUserId?id=1";
 
-            RequestQueue queue = Volley.newRequestQueue(this);
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                message = response.getString("message");
-                                token = response.getString("token");
-                                Toast.makeText(LogIn.this,  message, Toast.LENGTH_SHORT).show();
-                                Intent home = new Intent(LogIn.this, Home.class);
-                                startActivity(home);
-                                finish();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+
+    private void setupSignalR() {
+        try {
+            hubConnection.send("SaveUserConnection", user.UserId);
+            hubConnection.send("NotifyOnConnectionIdUpdate", user.UserId);
+
+            hubConnection.on("broadcastMessage", (message) -> {
+                runOnUiThread(() -> {
+                    try {
+                        Toast.makeText(Home.this,message,Toast.LENGTH_SHORT).show();
+                        // Notify ChatFragment about the new message
+                        ObjectMapper om = new ObjectMapper();
+                        ChatMessage msg = om.readValue(message, ChatMessage.class);
+                        ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (chatFragment != null) {
+                            chatFragment.onNewMessage(msg);
                         }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                        Toast.makeText(LogIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
-                                        setInProgress(false);
-                                    }
-                                });
-                            }
-                        });
-                    queue.add(jsonObjectRequest);
-            }catch (Exception e){
-                e.printStackTrace();
-        }*/
+                    }catch (Exception e){
+                        System.out.println(e);
+                    }
+                });
+            }, String.class);
+
+
+            hubConnection.on("ActiveUser", (message) -> {
+                runOnUiThread(() -> {
+                    try {
+                        Toast.makeText(Home.this,message,Toast.LENGTH_SHORT).show();
+                        ObjectMapper om = new ObjectMapper();
+                        UserContext user = om.readValue(message, UserContext.class);
+                        Toast.makeText(Home.this,message,Toast.LENGTH_SHORT).show();
+                    }catch (Exception e){
+                        System.out.println(e);
+                    }
+                });
+            }, String.class);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
+
     void loadChats(){
 
     }
+
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

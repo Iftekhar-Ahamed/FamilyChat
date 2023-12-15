@@ -62,6 +62,10 @@
               "target": "Package",
               "version": "[1.19.5, )"
             },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
             "SqlTableDependency": {
               "target": "Package",
               "version": "[8.5.8, )"

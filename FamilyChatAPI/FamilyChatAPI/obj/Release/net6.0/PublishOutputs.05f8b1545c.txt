@@ -23,6 +23,7 @@ D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\M
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.IdentityModel.Tokens.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.OpenApi.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
+D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Newtonsoft.Json.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\TableDependency.SqlClient.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
 D:\GITHUB\FamilyChat\FamilyChatAPI\FamilyChatAPI\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll

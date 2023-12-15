@@ -5,7 +5,6 @@ using FamilyChatAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using FamilyChatAPI.MiddlewareExtensions;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
@@ -53,14 +52,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IFamilyChat, FamilyChatRepository>();
 builder.Services.AddScoped<IJwtToken,JwtTokenRepository>();
 builder.Services.AddScoped<ChatHub>();
-builder.Services.AddScoped<ISubscribeNotificationTableDependency , SubscribeNotificationTableDependencyRepository>();
 
 //SignalR
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("http://FamilyChat.somee.com")
+            .WithOrigins("http://FamilyChat.somee.com", "https://localhost:44320")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -111,7 +109,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseSqlTableDependency<SubscribeNotificationTableDependencyRepository>(connection);
 
 app.Run();

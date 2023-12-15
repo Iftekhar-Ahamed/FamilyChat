@@ -63,6 +63,7 @@ public class ChatFragment extends Fragment {
                     int itemCount = adapter.getItemCount();
                     recyclerView.smoothScrollToPosition(itemCount - 1);
                     messageInput.setText("");
+
                 }catch (Exception ex){
                     System.out.println(ex);
                 }

@@ -1,4 +1,6 @@
+using FamilyChatAPI.DTO;
 using FamilyChatAPI.Dtos;
+using FamilyChatAPI.Helper;
 using FamilyChatAPI.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +32,14 @@ namespace FamilyChatAPI.Controllers
         }
         [Authorize]
         [HttpGet]
+        [Route("GetUserById")]
+        public async Task<IActionResult> GetUserById(long id)
+        {
+            var dt = await _IFamilyChat.GetUserById(id);
+            return Ok(dt);
+        }
+        [Authorize]
+        [HttpGet]
         [Route("GetAllConnectionByUserId")]
         public async Task<IActionResult> GetAllConnectionByUserId(long id)
         {
@@ -41,6 +51,13 @@ namespace FamilyChatAPI.Controllers
         public async Task<IActionResult> CreateNewConnection(long from, long to)
         {
             return Ok(await _IFamilyChat.CreateNewConnection(from,to));
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("SaveMessageByChatId")]
+        public async Task<IActionResult> SaveMessageByChatId(List<SaveMessageDto> msgList)
+        {
+            return Ok(await _IFamilyChat.SaveMessageByChatId(msgList));
         }
     }
 }

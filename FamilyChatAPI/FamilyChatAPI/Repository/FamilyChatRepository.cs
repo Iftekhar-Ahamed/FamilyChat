@@ -138,13 +138,12 @@ namespace FamilyChatAPI.Repository
 
 
                 var listOfConnectionList = await (from c in _contextR.TblChats
-                                                  join u in _contextR.TblUsers on (c.IntFromUserId == id ? c.IntToUserId : c.IntFromUserId) equals u.IntUserId
                                                   where (c.IntFromUserId == id || c.IntToUserId == id)
                                                   && c.IsAcitve == true
                                                   select new ConnectionListDto()
                                                   {
                                                       ChatId = c.IntChatId,
-                                                      ChatName = u.StrUserName
+                                                      ChatFriendId = c.IntToUserId == id ? c.IntFromUserId : c.IntToUserId,
                                                   }).ToListAsync();
                 return listOfConnectionList;
             } catch (Exception ex)
@@ -152,6 +151,36 @@ namespace FamilyChatAPI.Repository
                 throw ex;
             }
         }
-        
+        public async Task<MessageHelper> SaveMessageByChatId(List<SaveMessageDto> msgList)
+        {
+            try
+            {
+                MessageHelper msg = new MessageHelper();
+                List<TblMessage> tblMessages = new List<TblMessage>();
+                foreach(var m in msgList)
+                {
+                    var data = new TblMessage
+                    {
+                        StrMessage = m.Message,
+                        IntChatId = m.ChatId,
+                        IntUserId = m.SenderId,
+                        IsActive = true
+                    };
+                    tblMessages.Add(data);
+                }
+                await _contextW.AddRangeAsync(tblMessages);
+                if(await _contextW.SaveChangesAsync() <= 0)
+                {
+                    msg.message = "Faild to Save";
+                }
+                msg.statusCode = 200;
+                return msg;
+
+            }catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

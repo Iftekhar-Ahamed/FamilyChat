@@ -4,9 +4,19 @@ import com.example.familychat.ChatActivity;
 import com.example.familychat.ChatFragment;
 import com.example.familychat.adapter.ChatAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChatRooms {
-    public long ChatId;
     public UserContext User;
     public UserContext UserFriend;
+    public ChatAdapter chatAdapter;
     public ChatFragment chatFragment;
+    public ChatRooms(){
+
+    }
+    public ChatRooms(UserContext user,UserContext userFriend){
+        this.User = user;
+        this.UserFriend = userFriend;
+    }
 }

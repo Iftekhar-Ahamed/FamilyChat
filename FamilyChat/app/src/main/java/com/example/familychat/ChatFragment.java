@@ -1,12 +1,15 @@
 package com.example.familychat;
+import com.example.familychat.model.ChatManager;
+import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -22,31 +25,36 @@ import java.util.ArrayList;
 import java.util.List;
 public class ChatFragment extends Fragment {
 
-    private ChatAdapter adapter;
     private EditText messageInput;
     private RecyclerView recyclerView;
-    private UserContext user = new UserContext();
+    private ChatRooms chatRooms;
+
 
     // HubConnection reference to send messages
     private HubConnection hubConnection;
 
 
-    public ChatFragment(HubConnection hubConnection) {
-        this.hubConnection = hubConnection;
+    public ChatFragment(ChatRooms chatRooms) {
+        this.chatRooms = chatRooms;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
-        messageInput = rootView.findViewById(R.id.chat_message_input);
-        ImageButton sendMessageBtn = rootView.findViewById(R.id.message_send_btn);
-        recyclerView = rootView.findViewById(R.id.recyler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        try {
+            // Inflate the layout for this fragment
+
+            messageInput = rootView.findViewById(R.id.chat_message_input);
+            ImageButton sendMessageBtn = rootView.findViewById(R.id.message_send_btn);
+            recyclerView = rootView.findViewById(R.id.recyler_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+            hubConnection = SignalRManager.getHubConnection();
+            List<ChatMessage> messages = new ArrayList<>();
 
 
-        sendMessageBtn.setOnClickListener((v -> {
+            sendMessageBtn.setOnClickListener((v -> {
 
                 String message = messageInput.getText().toString().trim();
                 if (message.isEmpty())
@@ -54,45 +62,56 @@ public class ChatFragment extends Fragment {
                 try {
                     ObjectMapper om = new ObjectMapper();
 
-                    ChatMessage chatMessage = new ChatMessage(this.user,message);
+                    ChatMessage chatMessage = new ChatMessage(chatRooms.User, message);
+                    chatMessage.IsUser = false;
                     message = om.writeValueAsString(chatMessage);
                     hubConnection.send("SendNotificationToAll", message);
-                    ChatMessage msg = om.readValue(message, ChatMessage.class);
-                    msg.IsUser = true;
-                    addMessagesFromSignalR(msg);
-                    int itemCount = adapter.getItemCount();
-                    recyclerView.smoothScrollToPosition(itemCount - 1);
+                    chatMessage.IsUser = true;
+                    onNewMessage(chatMessage);
                     messageInput.setText("");
 
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     System.out.println(ex);
                 }
 
-        }));
+            }));
 
-        List<ChatMessage> messages = new ArrayList<>();
 
-        // Add messages from previous SignalR responses
-        // Add more messages as needed
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new ChatAdapter(getContext(), messages);
-        recyclerView.setAdapter(adapter);
 
+
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(layoutManager);
+
+            if (chatRooms.chatAdapter == null) {
+                chatRooms.chatAdapter = new ChatAdapter(getContext(), messages);
+            }
+            recyclerView.setAdapter(chatRooms.chatAdapter);
+            goTobottomOfChat();
+
+        }catch (Exception ex){
+            System.out.println(ex);
+        }
         return rootView;
     }
 
+    void goTobottomOfChat(){
+
+        if(recyclerView!=null && chatRooms.chatAdapter!=null) {
+            int itemCount = chatRooms.chatAdapter.getItemCount();
+            recyclerView.smoothScrollToPosition(itemCount - 1);
+        }
+    }
     public void onNewMessage(ChatMessage message) {
         // Handle the new message received from SignalR
         addMessagesFromSignalR(message);
-        int itemCount = adapter.getItemCount();
-        recyclerView.smoothScrollToPosition(itemCount - 1);
+        goTobottomOfChat();
     }
 
     private void addMessagesFromSignalR(ChatMessage msg) {
-        adapter.addMessage(msg);
+        chatRooms.chatAdapter.addMessage(msg);
+        chatRooms.chatAdapter.notifyDataSetChanged();
     }
 }
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     private Context context;
-    private List<ChatMessage> messages;
+    public List<ChatMessage> messages;
 
     public ChatAdapter(Context context, List<ChatMessage> messages) {
         this.context = context;
@@ -26,7 +26,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     @Override
     public ChatViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.chat_message_recycler_row, parent, false);
-
         return new ChatViewHolder(view);
     }
 

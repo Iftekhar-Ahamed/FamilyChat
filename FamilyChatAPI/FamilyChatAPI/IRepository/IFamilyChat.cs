@@ -8,7 +8,7 @@ namespace FamilyChatAPI.IRepository
     public interface IFamilyChat
     {
         Task<MessageHelper> CreateUser(CreateUserDto UserInfotmation);
-        Task<UserDto> GetUserById(long id);
+        Task<UserDto> GetUserById(long UserId);
         Task<MessageHelper> UserLogIn(string UserName, string Password);
         Task<MessageHelper> CreateNewConnection(long from, long to);
         Task<List<ConnectionListDto>> GetAllConnectionByUserId(long id);

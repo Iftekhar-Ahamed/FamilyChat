@@ -4,27 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+
+import com.example.familychat.utils.ChatRoomDto;
+import com.example.familychat.utils.MessageHelper;
+import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.UserContext;
+import com.example.familychat.utils.API;
+import com.google.gson.reflect.TypeToken;
 
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class LogIn extends AppCompatActivity {
     String message;
@@ -46,8 +41,37 @@ public class LogIn extends AppCompatActivity {
         logInBtn.setOnClickListener(new View.OnClickListener(){
             public  void onClick(View v){
                 setInProgress(true);
-                IsValidUser(usernameInput.getText().toString(), passwordInput.getText().toString());
+                API<MessageHelper> api = new API<MessageHelper>(v.getContext());
+                String url = "FamilyChat/UserLogIn" + "?UserName=" + usernameInput.getText().toString() + "&Password=" + passwordInput.getText().toString();
+                api.fetchData(url, MessageHelper.class,null, new API.UserCallback<MessageHelper>() {
+                    @Override
+                    public void onUserReceived(MessageHelper msg) {
+                        Toast.makeText(LogIn.this, msg.message, Toast.LENGTH_SHORT).show();
 
+                        API<UserContext> userData = new API<UserContext>(v.getContext());
+                        String userDataUrl = "FamilyChat/GetUserById" + "?UserId=" + msg.userId;
+                        userData.fetchData(userDataUrl,UserContext.class,msg.token,new API.UserCallback<UserContext>(){
+                            @Override
+                            public void onUserReceived(UserContext user) {
+                                Intent home = new Intent(LogIn.this, Home.class);
+                                MyInformation.initialize(user,msg.token);
+                                startActivity(home);
+                                finish();
+                            }
+                            @Override
+                            public void onUserError(String errorMessage) {
+                                Toast.makeText(LogIn.this, errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onUserError(String errorMessage) {
+                        Toast.makeText(LogIn.this, "Wrong User Name and Password", Toast.LENGTH_SHORT).show();
+                        setInProgress(false);
+                    }
+                });
             }
         });
     }
@@ -60,63 +84,6 @@ public class LogIn extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             logInBtn.setVisibility(View.VISIBLE);
             forgetPassBtn.setVisibility(View.VISIBLE);
-        }
-    }
-    public void IsValidUser(String username, String password) {
-
-        try {
-            String baseUrl = "http://familychat.somee.com/FamilyChat/UserLogIn";
-            String url = baseUrl + "?UserName=" + username + "&Password=" + password;
-
-
-
-            RequestQueue queue = Volley.newRequestQueue(this);
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                message = response.getString("message");
-                                token = response.getString("token");
-                                Toast.makeText(LogIn.this,  message, Toast.LENGTH_SHORT).show();
-                                UserContext user;
-                                if(username.equals("Iftekhar")){
-                                    user = new UserContext();
-                                    user.IsUser = true;
-                                    user.UserId = 1;
-                                    user.name = "Iftekhar";
-                                    user.connectionId = "";
-                                }else {
-                                    user = new UserContext();
-                                    user.IsUser = true;
-                                    user.UserId = 2;
-                                    user.name = "Ifty";
-                                    user.connectionId = "";
-                                }
-                                Intent home = new Intent(LogIn.this, Home.class);
-                                home.putExtra("user", user);
-                                startActivity(home);
-                                finish();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(LogIn.this, "Authentication failed", Toast.LENGTH_SHORT).show();
-                                    setInProgress(false);
-                                }
-                            });
-                        }
-                    });
-            queue.add(jsonObjectRequest);
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 

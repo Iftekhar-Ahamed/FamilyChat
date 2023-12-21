@@ -24,15 +24,18 @@ namespace FamilyChatAPI.Repository
             _contextW = writeDbContext;
             _jwtToken = jwtToken;
         }
-        public async Task<UserDto> GetUserById(long id)
+        public async Task<UserDto> GetUserById(long UserId)
         {
             try
             {
-                var data = await _contextR.TblUsers.Where(x => x.IntUserId == id && x.IsActive == true).Select( u =>
+                var data = await _contextR.TblUsers.Where(x => x.IntUserId == UserId && x.IsActive == true).Select( u =>
                     new UserDto
                     {
                         UserId = u.IntUserId,
-                        UserName = u.StrUserName
+                        UserName = u.StrUserName,
+                        IsUser = true,
+                        PassWord = string.Empty,
+                        ConnectionId = u.StrConnectionId?? String.Empty
                     }).FirstOrDefaultAsync();
                 return data;
             }catch (Exception ex)
@@ -40,21 +43,21 @@ namespace FamilyChatAPI.Repository
                 throw ex;
             }
         }
-        public async Task<MessageHelper> CreateUser(CreateUserDto UserInfotmation)
+        public async Task<MessageHelper> CreateUser(CreateUserDto UserInformation)
         {
             try
             {
                 var data = new Models.Write.TblUser
                 {
-                    StrUserName = UserInfotmation.UserName,
-                    StrPassword = UserInfotmation.Password,
+                    StrUserName = UserInformation.UserName,
+                    StrPassword = UserInformation.Password,
                     IsActive = true
                 };
                 await _contextW.AddAsync(data);
                 await _contextW.SaveChangesAsync();
                 MessageHelper msg = new MessageHelper();
-                msg.message = "Registration Compelete";
-                msg.statusCode = 200;
+                msg.Message = "Registration Compelete";
+                msg.StatusCode = 200;
                 return msg;
             }
             catch (Exception ex)
@@ -70,10 +73,11 @@ namespace FamilyChatAPI.Repository
 
 
                 MessageHelper msg = new MessageHelper();
-                msg.message = "Welcome " + UserName;
+                msg.Message = "Welcome " + UserName;
                 UserDto usr = new UserDto();
 
                 if (data != null) {
+                    msg.UserId = data.IntUserId;
                     usr.UserName = data.StrUserName;
                     usr.UserId = data.IntUserId;
                     msg.Token = _jwtToken.GenerateToken(usr);
@@ -82,7 +86,8 @@ namespace FamilyChatAPI.Repository
                 {
                     throw new Exception("Wrong Username and Password");
                 }
-                msg.statusCode = 200;
+                
+                msg.StatusCode = 200;
                 return msg;
             }
             catch (Exception ex)
@@ -109,8 +114,8 @@ namespace FamilyChatAPI.Repository
                     await _contextW.AddAsync(data);
                     if (await _contextW.SaveChangesAsync() > 0)
                     {
-                        messageHelper.message = "Successfully Added";
-                        messageHelper.statusCode = 200;
+                        messageHelper.Message = "Successfully Added";
+                        messageHelper.StatusCode = 200;
                     }
                     else
                     {
@@ -171,9 +176,9 @@ namespace FamilyChatAPI.Repository
                 await _contextW.AddRangeAsync(tblMessages);
                 if(await _contextW.SaveChangesAsync() <= 0)
                 {
-                    msg.message = "Faild to Save";
+                    msg.Message = "Faild to Save";
                 }
-                msg.statusCode = 200;
+                msg.StatusCode = 200;
                 return msg;
 
             }catch (Exception ex)

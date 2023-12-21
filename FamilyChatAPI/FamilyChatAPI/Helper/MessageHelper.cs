@@ -5,8 +5,9 @@ namespace FamilyChatAPI.Helper
     public class MessageHelper
     {
         [DataMember]
-        public string message {  get; set; }
-        public int statusCode { get; set; }
+        public string Message {  get; set; }
+        public int StatusCode { get; set; }
         public string Token { get; set; }
+        public long UserId { get; set; }
     }
 }

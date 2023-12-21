@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +42,7 @@ public class ChatActivity extends AppCompatActivity {
             ImageButton backBtn = findViewById(R.id.back_btn);
 
             TextView textView = findViewById(R.id.other_username);
-            textView.setText(chatRooms.User.name);
+            textView.setText(ChatManager.getChatRooms(chatId).UserFriend.userName);
 
 
             backBtn.setOnClickListener((v) -> {
@@ -59,24 +60,13 @@ public class ChatActivity extends AppCompatActivity {
 
     private void loadChatFragment() {
         try {
+            if(chatRooms.chatFragment == null) {
+                chatRooms.chatFragment = new ChatFragment(chatRooms);
+            }
 
-            // Create a new instance of the ChatFragment
-
-            chatRooms.chatFragment = new ChatFragment(chatRooms);
-
-
-            // Pass any necessary data to the fragment using arguments
-            /*Bundle bundle = new Bundle();
-            bundle.putSerializable("user", user);
-            chatFragment.setArguments(bundle);*/
-
-            // Begin the fragment transaction
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace the content of the container with the ChatFragment
             transaction.replace(R.id.fragment_container, chatRooms.chatFragment);
 
-            // Commit the transaction
             transaction.commit();
         }catch (Exception ex){
             System.out.println(ex);

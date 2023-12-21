@@ -8,15 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatRooms {
-    public UserContext User;
     public UserContext UserFriend;
     public ChatAdapter chatAdapter;
     public ChatFragment chatFragment;
     public ChatRooms(){
 
     }
-    public ChatRooms(UserContext user,UserContext userFriend){
-        this.User = user;
+    public ChatRooms(UserContext userFriend){
         this.UserFriend = userFriend;
     }
 }

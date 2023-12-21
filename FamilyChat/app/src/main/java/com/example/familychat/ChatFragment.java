@@ -1,6 +1,7 @@
 package com.example.familychat;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,11 +63,11 @@ public class ChatFragment extends Fragment {
                 try {
                     ObjectMapper om = new ObjectMapper();
 
-                    ChatMessage chatMessage = new ChatMessage(chatRooms.User, message);
-                    chatMessage.IsUser = false;
+                    ChatMessage chatMessage = new ChatMessage(MyInformation.data, message);
+                    chatMessage.isUser = false;
                     message = om.writeValueAsString(chatMessage);
                     hubConnection.send("SendNotificationToAll", message);
-                    chatMessage.IsUser = true;
+                    chatMessage.isUser = true;
                     onNewMessage(chatMessage);
                     messageInput.setText("");
 

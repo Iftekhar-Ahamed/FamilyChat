@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FamilyChatAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1700f9c3b92d9f35f21e8b0f00b13bfe89a71bf7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ede2c13c92dbae8ae9d39ed530e124efe27e4128")]
 [assembly: System.Reflection.AssemblyProductAttribute("FamilyChatAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FamilyChatAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -33,7 +33,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     public void onBindViewHolder(ChatViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
 
-        if (message.IsUser) {
+        if (message.isUser) {
             holder.leftChatLayout.setVisibility(View.GONE);
             holder.rightChatLayout.setVisibility(View.VISIBLE);
             holder.rightChatTextView.setText(message.messageText);

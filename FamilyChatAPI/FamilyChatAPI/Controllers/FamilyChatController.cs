@@ -33,9 +33,9 @@ namespace FamilyChatAPI.Controllers
         [Authorize]
         [HttpGet]
         [Route("GetUserById")]
-        public async Task<IActionResult> GetUserById(long id)
+        public async Task<IActionResult> GetUserById(long UserId)
         {
-            var dt = await _IFamilyChat.GetUserById(id);
+            var dt = await _IFamilyChat.GetUserById(UserId);
             return Ok(dt);
         }
         [Authorize]

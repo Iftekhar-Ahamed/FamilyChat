@@ -3,15 +3,16 @@ package com.example.familychat.model;
 import java.io.Serializable;
 
 public class UserContext implements Serializable {
-    public String name="";
+    public String userName="";
     public String connectionId="";
-    public Integer UserId=0;
-    public  Boolean IsUser=false;
+    public String passWord="";
+    public Integer userId=0;
+    public  Boolean isUser=false;
     public UserContext(UserContext user){
-        name = user.name;
+        userName = user.userName;
         connectionId = user.connectionId;
-        UserId = user.UserId;
-        IsUser = user.IsUser;
+        userId = user.userId;
+        isUser = user.isUser;
     }
     public UserContext(){
     }

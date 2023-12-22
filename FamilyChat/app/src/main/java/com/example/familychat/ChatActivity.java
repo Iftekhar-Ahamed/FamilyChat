@@ -22,9 +22,14 @@ import com.example.familychat.model.ChatRooms;
 import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
+import com.example.familychat.utils.ChatMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,13 +39,13 @@ import java.util.Map;
 public class ChatActivity extends AppCompatActivity {
     HubConnection hubConnection = SignalRManager.getHubConnection();
     private  Integer chatId;
-    private  ChatFragment chatFragment;
     private  ChatRooms chatRooms;
     private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         try {
 
             setContentView(R.layout.activity_chat);
@@ -63,6 +68,14 @@ public class ChatActivity extends AppCompatActivity {
             recyclerView.setAdapter(chatRooms.chatAdapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+            chatRooms.chatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    super.onItemRangeInserted(positionStart, itemCount);
+                    recyclerView.smoothScrollToPosition(positionStart+itemCount);
+                }
+            });
+
 
 
             sendMessageBtn.setOnClickListener((v -> {
@@ -73,29 +86,32 @@ public class ChatActivity extends AppCompatActivity {
                 try {
                     ObjectMapper om = new ObjectMapper();
 
-                    ChatMessage chatMessage = new ChatMessage(MyInformation.data, message);
+                    ChatMessage chatMessage = new ChatMessage(ChatManager.getChatRooms(chatRooms.chatId).UserFriend, message);
                     chatMessage.chatId = chatRooms.chatId;
                     chatMessage.isUser = false;
                     message = om.writeValueAsString(chatMessage);
-                    hubConnection.send("SendNotificationToAll", message);
+                    hubConnection.send("SendNotificationToClient", message);
                     chatMessage.isUser = true;
-                    chatRooms.chatAdapter.addMessage(chatMessage);
+                    postChatMessageEvent(chatMessage);
                     messageInput.setText("");
-                    goTobottomOfChat();
                 } catch (Exception ex) {
                     System.out.println(ex);
                 }
             }));
+            goTobottomOfChat();
 
             backBtn.setOnClickListener((v) -> {
                 onBackPressed();
             });
-
-
-
-
         }catch (Exception ex){
             System.out.println(ex);
+        }
+    }
+    private static void postChatMessageEvent(ChatMessage chatMessage) {
+        try {
+            EventBus.getDefault().post(new ChatMessageEvent(chatMessage));
+        }catch (Exception e){
+            System.out.println(e.toString());
         }
     }
     void goTobottomOfChat(){
@@ -105,4 +121,5 @@ public class ChatActivity extends AppCompatActivity {
             recyclerView.smoothScrollToPosition(itemCount - 1);
         }
     }
+
 }

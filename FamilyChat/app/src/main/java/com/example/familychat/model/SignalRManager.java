@@ -1,12 +1,23 @@
 package com.example.familychat.model;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
+import com.example.familychat.ChatActivity;
 import com.example.familychat.Home;
+import com.example.familychat.adapter.ChatAdapter;
+import com.example.familychat.utils.ActiveUserDto;
+import com.example.familychat.utils.ChatMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SignalRManager {
     private static final String HUB_URL = "http://familychat.somee.com/notificationHub";
@@ -43,23 +54,38 @@ public class SignalRManager {
                         ObjectMapper om = new ObjectMapper();
                         ChatMessage msg = om.readValue(message, ChatMessage.class);
                         ChatRooms chatRooms = ChatManager.getChatRooms(msg.chatId);
-                        if(chatRooms.chatAdapter!=null){
-                            chatRooms.chatAdapter.addMessage(msg);
-                        }
+                        postChatMessageEvent(msg);
                     }catch (Exception e){
                         System.out.println(e);
                     }
             }, String.class);
+            hubConnection.on("ReceivedPersonalNotification", (message) -> {
 
+                try {
+                    ObjectMapper om = new ObjectMapper();
+                    ChatMessage msg = om.readValue(message, ChatMessage.class);
+                    postChatMessageEvent(msg);
+                }catch (Exception e){
+                    System.out.println(e);
+                }
+            }, String.class);
             hubConnection.on("ActiveUser", (message) -> {
                 try {
                     ObjectMapper om = new ObjectMapper();
-                    UserContext u = om.readValue(message, UserContext.class);
+                    ActiveUserDto u = om.readValue(message, ActiveUserDto.class);
+                    ChatManager.getChatRooms(u.chatId).UserFriend.connectionId = u.connectionId;
                 }catch (Exception e){
                     System.out.println(e.toString());
                 }
             }, String.class);
         } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+    }
+    private static void postChatMessageEvent(ChatMessage chatMessage) {
+        try {
+            EventBus.getDefault().post(new ChatMessageEvent(chatMessage));
+        }catch (Exception e){
             System.out.println(e.toString());
         }
     }

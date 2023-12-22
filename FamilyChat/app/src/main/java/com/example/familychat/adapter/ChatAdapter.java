@@ -8,14 +8,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.familychat.R;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.utils.ChatViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
@@ -54,37 +52,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         return messages.size();
     }
     public void addMessage(ChatMessage message) {
-        List<ChatMessage> oldData = new ArrayList<>(this.messages);
         messages.add(message);
-
-        DiffUtil.Callback diffUtilCallback = new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return oldData.size();
-            }
-
-            @Override
-            public int getNewListSize() {
-                return messages.size();
-            }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                ChatMessage oldItem = oldData.get(oldItemPosition);
-                ChatMessage newItem = messages.get(newItemPosition);
-                return oldItem == newItem; // Use a unique identifier for ChatMessage
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                ChatMessage oldItem = oldData.get(oldItemPosition);
-                ChatMessage newItem = messages.get(newItemPosition);
-                return oldItem.equals(newItem);
-            }
-        };
-
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffUtilCallback);
-        diffResult.dispatchUpdatesTo(this);
+        notifyItemInserted(messages.size() - 1);
     }
 
 }

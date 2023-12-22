@@ -1,6 +1,7 @@
 ﻿using FamilyChatAPI.DbContexts.Read;
 using FamilyChatAPI.DbContexts.Write;
 using FamilyChatAPI.Dtos;
+using FamilyChatAPI.Dtos.ChatHubDto;
 using FamilyChatAPI.Models.Read;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +24,17 @@ namespace FamilyChatAPI.Repository
         {
             await Clients.All.SendAsync("broadcastMessage", message);
         }
-        public async Task SendNotificationToClient(string message, byte id)
+        public async Task SendNotificationToClient(string message)
         {
-            var hubConnections = await _contextR.TblUsers.Where(con => con.IntUserId == id && con.IsActive == true && con.StrConnectionId!=null).ToListAsync();
-            foreach (var hubConnection in hubConnections)
+            try
             {
-                await Clients.Client(hubConnection.StrConnectionId??"").SendAsync("ReceivedPersonalNotification", message, hubConnection.StrUserName);
+                PersonalMessageDto personalMessageDto = Newtonsoft.Json.JsonConvert.DeserializeObject<PersonalMessageDto>(message);
+               
+                await Clients.Client(personalMessageDto.connectionId).SendAsync("ReceivedPersonalNotification", message);
+                
+            }catch (Exception ex)
+            {
+                throw ex;
             }
         }
         public async Task NotifyOnConnectionIdUpdate(byte UserId)
@@ -39,7 +45,7 @@ namespace FamilyChatAPI.Repository
                                         && (chat.IntToUserId == UserId || chat.IntFromUserId == UserId)
                                         && user.IsActive == true
                                         && user.StrConnectionId != null
-                                        select user.StrConnectionId).ToListAsync();
+                                        select new { user.StrConnectionId,chat.IntChatId}).ToListAsync();
 
             var obj = await _contextR.TblUsers.Where(u => u.IntUserId == UserId).Select(u => new ConnectionUpdateDto
             {
@@ -49,15 +55,19 @@ namespace FamilyChatAPI.Repository
                 Name = u.StrUserName
             }).FirstOrDefaultAsync();
 
-            string data = string.Empty;
-            if (obj != null)
-            {
-                data = JsonConvert.SerializeObject(obj, Formatting.Indented);
-            }
+            
 
             foreach (var hubConnection in hubConnections)
             {
-                await Clients.Client(hubConnection).SendAsync("ActiveUser", data);
+                var t = obj;
+               
+                string data = string.Empty;
+                if (t != null)
+                {
+                    t.ChatId = hubConnection.IntChatId;
+                    data = JsonConvert.SerializeObject(t, Formatting.Indented);
+                }
+                await Clients.Client(hubConnection.StrConnectionId).SendAsync("ActiveUser", data);
             }
         }
         public override Task OnConnectedAsync()

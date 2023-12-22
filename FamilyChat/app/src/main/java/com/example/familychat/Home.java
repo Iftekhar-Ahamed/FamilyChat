@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.familychat.adapter.ChatAdapter;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRooms;
@@ -17,12 +18,17 @@ import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.API;
+import com.example.familychat.utils.ChatMessageEvent;
 import com.example.familychat.utils.ChatRoomCallback;
 import com.example.familychat.utils.ChatRoomDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.microsoft.signalr.HubConnection;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +78,20 @@ public class Home extends AppCompatActivity  {
         }catch (Exception e){
             System.out.println(e);
         }
+        EventBus.getDefault().register(this);
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatMessageEvent(ChatMessageEvent event) {
+        ChatMessage chatMessage = event.getChatMessage();
+        ChatManager.getChatRooms(chatMessage.chatId).chatAdapter.addMessage(chatMessage);
+        ChatManager.getChatRooms(chatMessage.chatId).chatAdapter.notify();
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Unregister EventBus
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
     private void loadChatFragment() {
@@ -130,6 +150,7 @@ public class Home extends AppCompatActivity  {
             @Override
             public void onUserReceived(UserContext user) {
                 room.UserFriend = user;
+                room.chatAdapter = new ChatAdapter(Home.this,new ArrayList<ChatMessage>());
                 callback.onChatRoomReceived(room);
             }
 

@@ -37,6 +37,8 @@ dependencies {
     implementation ("org.slf4j:slf4j-jdk14:1.7.25")
     implementation ("com.fasterxml.jackson.core:jackson-databind:2.13.0")
     implementation ("com.google.code.gson:gson:2.8.9")
+    implementation ("org.greenrobot:eventbus:3.2.0")
+
 
     implementation ("com.microsoft.signalr:signalr:7.0.0")
     testImplementation("junit:junit:4.13.2")

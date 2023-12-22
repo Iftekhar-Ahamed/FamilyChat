@@ -6,16 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.familychat.R;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.utils.ChatViewHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
-    private Context context;
+    private final Context context;
     public List<ChatMessage> messages;
 
     public ChatAdapter(Context context, List<ChatMessage> messages) {
@@ -23,14 +27,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         this.messages = messages;
     }
 
+    @NonNull
     @Override
-    public ChatViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.chat_message_recycler_row, parent, false);
         return new ChatViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ChatViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
 
         if (message.isUser) {
@@ -49,7 +54,37 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         return messages.size();
     }
     public void addMessage(ChatMessage message) {
+        List<ChatMessage> oldData = new ArrayList<>(this.messages);
         messages.add(message);
-        notifyItemInserted(messages.size() - 1);
+
+        DiffUtil.Callback diffUtilCallback = new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldData.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return messages.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                ChatMessage oldItem = oldData.get(oldItemPosition);
+                ChatMessage newItem = messages.get(newItemPosition);
+                return oldItem == newItem; // Use a unique identifier for ChatMessage
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                ChatMessage oldItem = oldData.get(oldItemPosition);
+                ChatMessage newItem = messages.get(newItemPosition);
+                return oldItem.equals(newItem);
+            }
+        };
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffUtilCallback);
+        diffResult.dispatchUpdatesTo(this);
     }
+
 }

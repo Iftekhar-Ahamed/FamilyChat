@@ -44,8 +44,8 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         try {
-            messageInput = rootView.findViewById(R.id.chat_message_input);
-            ImageButton sendMessageBtn = rootView.findViewById(R.id.message_send_btn);
+
+
             recyclerView = rootView.findViewById(R.id.recyler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -53,26 +53,7 @@ public class ChatFragment extends Fragment {
             List<ChatMessage> messages = new ArrayList<>();
 
 
-            sendMessageBtn.setOnClickListener((v -> {
 
-                String message = messageInput.getText().toString().trim();
-                if (message.isEmpty())
-                    return;
-                try {
-                    ObjectMapper om = new ObjectMapper();
-
-                    ChatMessage chatMessage = new ChatMessage(MyInformation.data, message);
-                    chatMessage.isUser = false;
-                    message = om.writeValueAsString(chatMessage);
-                    hubConnection.send("SendNotificationToAll", message);
-                    chatMessage.isUser = true;
-                    onNewMessage(chatMessage);
-                    messageInput.setText("");
-
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                }
-            }));
 
 
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -82,30 +63,12 @@ public class ChatFragment extends Fragment {
                 chatRooms.chatAdapter = new ChatAdapter(getContext(), messages);
             }
             recyclerView.setAdapter(chatRooms.chatAdapter);
-            goTobottomOfChat();
+
 
         }catch (Exception ex){
             System.out.println(ex);
         }
         return rootView;
-    }
-
-    void goTobottomOfChat(){
-
-        if(recyclerView!=null && chatRooms.chatAdapter!=null) {
-            int itemCount = chatRooms.chatAdapter.getItemCount();
-            recyclerView.smoothScrollToPosition(itemCount - 1);
-        }
-    }
-    public void onNewMessage(ChatMessage message) {
-        // Handle the new message received from SignalR
-        addMessagesFromSignalR(message);
-        goTobottomOfChat();
-    }
-
-    private void addMessagesFromSignalR(ChatMessage msg) {
-        chatRooms.chatAdapter.addMessage(msg);
-        chatRooms.chatAdapter.notifyDataSetChanged();
     }
 }
 

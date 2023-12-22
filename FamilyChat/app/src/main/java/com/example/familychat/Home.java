@@ -45,11 +45,9 @@ public class Home extends AppCompatActivity  {
             bottomNavigationView = findViewById(R.id.bottom_navigation);
             searchButton = findViewById(R.id.main_search_btn);
 
-            SignalRManager.initialize(this);
+            SignalRManager.initialize(this,user);
             hubConnection = SignalRManager.getHubConnection();
 
-
-            setupSignalR();
             setupChatRooms();
 
 
@@ -78,7 +76,6 @@ public class Home extends AppCompatActivity  {
 
     private void loadChatFragment() {
         try {
-
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.main_frame_layout, new ChatRecentFragment());
             transaction.commit();
@@ -111,6 +108,7 @@ public class Home extends AppCompatActivity  {
             getChatRoom(item.chatFriendId, new ChatRoomCallback() {
                 @Override
                 public void onChatRoomReceived(ChatRooms chatRooms) {
+                    chatRooms.chatId = item.chatId;
                     ChatManager.addChatRooms(item.chatId, chatRooms);
                     processChatRooms(data, index + 1); // Process the next item
                 }
@@ -144,40 +142,7 @@ public class Home extends AppCompatActivity  {
 
 
 
-    private void setupSignalR() {
-        try {
-            hubConnection.send("SaveUserConnection", user.userId);
-            hubConnection.send("NotifyOnConnectionIdUpdate", user.userId);
-            hubConnection.on("broadcastMessage", (message) -> {
-                runOnUiThread(() -> {
-                    try {
-                        Toast.makeText(Home.this,message,Toast.LENGTH_SHORT).show();
-                        ObjectMapper om = new ObjectMapper();
-                        ChatMessage msg = om.readValue(message, ChatMessage.class);
-                        if(chatRooms.chatFragment!=null){
-                            chatRooms.chatFragment.onNewMessage(msg);
-                        }
-                    }catch (Exception e){
-                        Toast.makeText(Home.this,e.toString(),Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }, String.class);
 
-            hubConnection.on("ActiveUser", (message) -> {
-                runOnUiThread(() -> {
-                    try {
-                        ObjectMapper om = new ObjectMapper();
-                        UserContext user = om.readValue(message, UserContext.class);
-                        Toast.makeText(Home.this,message,Toast.LENGTH_SHORT).show();
-                    }catch (Exception e){
-                        Toast.makeText(Home.this,e.toString(),Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }, String.class);
-        } catch (Exception e) {
-            Toast.makeText(Home.this,e.toString(),Toast.LENGTH_SHORT).show();
-        }
-    }
 
     public void onChatRoomsLoaded() {
         loadChatFragment();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,37 +13,48 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.familychat.R;
 import com.example.familychat.model.ChatManager;
-import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRooms;
-import com.example.familychat.utils.ChatViewHolder;
 
 import java.util.List;
-import java.util.Map;
 
 public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatAdapter.ChatroomModelViewHolder>{
-    private Context context;
-    private Map<Integer,ChatRooms> data;
+    private final Context context;
+    private final List<ChatRooms> data;
+    private final OnItemClickListener onItemClickListener;
 
-    public RecentChatAdapter(Context context, Map<Integer,ChatRooms> data) {
+    public RecentChatAdapter(Context context, List<ChatRooms> data,OnItemClickListener onItemClickListener1) {
         this.context = context;
         this.data = data;
+        this.onItemClickListener = onItemClickListener1;
     }
     @NonNull
     @Override
-    public ChatroomModelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChatroomModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.recent_chat_recycler_row, parent, false);
         return new ChatroomModelViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ChatroomModelViewHolder holder, int position) {
-        for (Map.Entry<Integer, ChatRooms> entry :data.entrySet()) {
-            Integer key = entry.getKey();
-            ChatRooms value = entry.getValue();
-            holder.usernameText.setText(value.UserFriend.userName);
-        }
+    public void onBindViewHolder(@NonNull ChatroomModelViewHolder holder, int position) {
+        ChatRooms chatRoom = data.get(position);
+        holder.usernameText.setText(chatRoom.UserFriend.userName);
+        holder.lastMessageTime.setText("10:00AM");
+        holder.lastMessageText.setText("Testing");
+        holder.profilePic.setImageResource(R.drawable.person_icon);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(chatRoom);
+            }
+        });
+
     }
-    class ChatroomModelViewHolder extends RecyclerView.ViewHolder{
+
+    public interface OnItemClickListener {
+        void onItemClick(ChatRooms chatRoom);
+    }
+
+    static class ChatroomModelViewHolder extends RecyclerView.ViewHolder{
         TextView usernameText;
         TextView lastMessageText;
         TextView lastMessageTime;

@@ -11,6 +11,7 @@ public class ChatRooms {
     public UserContext UserFriend;
     public ChatAdapter chatAdapter;
     public ChatFragment chatFragment;
+    public Integer chatId;
     public ChatRooms(){
 
     }

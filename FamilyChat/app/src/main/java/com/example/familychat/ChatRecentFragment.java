@@ -1,9 +1,11 @@
 package com.example.familychat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,8 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.familychat.adapter.RecentChatAdapter;
 import com.example.familychat.model.ChatManager;
+import com.example.familychat.model.ChatRooms;
 
-public class ChatRecentFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class ChatRecentFragment extends Fragment implements RecentChatAdapter.OnItemClickListener{
     RecyclerView recyclerView;
     RecentChatAdapter adapter;
     @Override
@@ -30,8 +37,18 @@ public class ChatRecentFragment extends Fragment {
         return view;
     }
     void setupRecyclerView(){
-        adapter = new RecentChatAdapter(getContext(), ChatManager.getAllChatRooms());
+        List<ChatRooms> chatRoomsList = new ArrayList<>();
+        for (Map.Entry<Integer, ChatRooms> entry : ChatManager.getAllChatRooms().entrySet()) {
+            chatRoomsList.add(entry.getValue());
+        }
+        adapter = new RecentChatAdapter(getContext(), chatRoomsList,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+    }
+    @Override
+    public void onItemClick(ChatRooms chatRoom) {
+        Intent chatActivity = new Intent(getContext(),ChatActivity.class);
+        chatActivity.putExtra("chat",chatRoom.chatId);
+        startActivity(chatActivity);
     }
 }

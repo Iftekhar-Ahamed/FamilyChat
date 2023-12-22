@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
@@ -16,6 +17,7 @@ import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.API;
+import com.example.familychat.utils.ChatRoomCallback;
 import com.example.familychat.utils.ChatRoomDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,8 +26,9 @@ import com.microsoft.signalr.HubConnection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity  {
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
     UserContext user;
@@ -50,13 +53,9 @@ public class Home extends AppCompatActivity {
             setupChatRooms();
 
 
-            chatRooms = ChatManager.getChatRooms(1);
-
             searchButton.setOnClickListener((v) -> {
                 Toast.makeText(Home.this, "Search", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Home.this, ChatActivity.class);
-                intent.putExtra("chat", 1);
-                startActivity(intent);
+
             });
 
 
@@ -76,41 +75,73 @@ public class Home extends AppCompatActivity {
             System.out.println(e);
         }
     }
-    private void setupChatRooms(){
 
+    private void loadChatFragment() {
+        try {
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.main_frame_layout, new ChatRecentFragment());
+            transaction.commit();
+        }catch (Exception ex){
+            System.out.println(ex);
+        }
+    }
+
+
+    private void setupChatRooms() {
         API<ChatRoomDto> apiConnectionList = new API<ChatRoomDto>(this);
         String connectionListUrl = "FamilyChat/GetAllConnectionByUserId" + "?id=" + MyInformation.data.userId;
-        List<ChatRoomDto> chatInfoList = new ArrayList<>();
 
-        apiConnectionList.fetchDataList(connectionListUrl,ChatRoomDto.class,MyInformation.token,new API.UserCallback<List<ChatRoomDto>>(){
+        apiConnectionList.fetchDataList(connectionListUrl, ChatRoomDto.class, MyInformation.token, new API.UserCallback<List<ChatRoomDto>>() {
             @Override
             public void onUserReceived(List<ChatRoomDto> data) {
-                for (ChatRoomDto item:data) {
-                    ChatManager.addChatRooms(item.chatId,getChatRoom(item.chatFriendId));
-                }
+                processChatRooms(data, 0);
             }
+
             @Override
             public void onUserError(String errorMessage) {
                 Toast.makeText(Home.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
-    public ChatRooms getChatRoom(Integer chatFriendId){
+
+    private void processChatRooms(List<ChatRoomDto> data, int index) {
+        if (index < data.size()) {
+            ChatRoomDto item = data.get(index);
+            getChatRoom(item.chatFriendId, new ChatRoomCallback() {
+                @Override
+                public void onChatRoomReceived(ChatRooms chatRooms) {
+                    ChatManager.addChatRooms(item.chatId, chatRooms);
+                    processChatRooms(data, index + 1); // Process the next item
+                }
+                @Override
+                public void onChatRoomError(String errorMessage) {
+                    Toast.makeText(Home.this, errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            onChatRoomsLoaded(); // All chat rooms processed, call the callback
+        }
+    }
+
+    public void getChatRoom(Integer chatFriendId, ChatRoomCallback callback) {
         ChatRooms room = new ChatRooms();
         API<UserContext> userData = new API<UserContext>(this);
         String userDataUrl = "FamilyChat/GetUserById" + "?UserId=" + chatFriendId;
-        userData.fetchData(userDataUrl,UserContext.class,MyInformation.token,new API.UserCallback<UserContext>(){
+        userData.fetchData(userDataUrl, UserContext.class, MyInformation.token, new API.UserCallback<UserContext>() {
             @Override
             public void onUserReceived(UserContext user) {
                 room.UserFriend = user;
+                callback.onChatRoomReceived(room);
             }
+
             @Override
             public void onUserError(String errorMessage) {
-                Toast.makeText(Home.this, errorMessage, Toast.LENGTH_SHORT).show();
+                callback.onChatRoomError(errorMessage);
             }
         });
-        return room;
     }
+
 
 
     private void setupSignalR() {
@@ -148,6 +179,9 @@ public class Home extends AppCompatActivity {
         }
     }
 
+    public void onChatRoomsLoaded() {
+        loadChatFragment();
+    }
 
     @Override
     public void onBackPressed() {

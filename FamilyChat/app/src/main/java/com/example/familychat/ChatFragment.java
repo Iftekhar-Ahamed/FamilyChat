@@ -44,8 +44,6 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         try {
-            // Inflate the layout for this fragment
-
             messageInput = rootView.findViewById(R.id.chat_message_input);
             ImageButton sendMessageBtn = rootView.findViewById(R.id.message_send_btn);
             recyclerView = rootView.findViewById(R.id.recyler_view);
@@ -74,12 +72,7 @@ public class ChatFragment extends Fragment {
                 } catch (Exception ex) {
                     System.out.println(ex);
                 }
-
             }));
-
-
-
-
 
 
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());

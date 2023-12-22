@@ -66,7 +66,6 @@ public class ChatActivity extends AppCompatActivity {
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, chatRooms.chatFragment);
-
             transaction.commit();
         }catch (Exception ex){
             System.out.println(ex);

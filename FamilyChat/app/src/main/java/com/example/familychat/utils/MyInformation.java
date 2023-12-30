@@ -1,4 +1,6 @@
-package com.example.familychat.model;
+package com.example.familychat.utils;
+
+import com.example.familychat.model.UserContext;
 
 public class MyInformation {
     public static UserContext data;

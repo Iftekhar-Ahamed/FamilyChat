@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.familychat.R;
 import com.example.familychat.model.ChatMessage;
-import com.example.familychat.utils.ChatViewHolder;
+import com.example.familychat.model.ChatViewHolder;
 
 import java.util.List;
 

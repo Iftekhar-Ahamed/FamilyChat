@@ -47,7 +47,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".model.SignalRManager" />
+        <service android:name=".utils.SignalRManager" />
     </application>
 
 </manifest>

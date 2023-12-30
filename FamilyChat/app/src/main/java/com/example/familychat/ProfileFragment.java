@@ -1,4 +1,4 @@
-package com.example.familychat.utils;
+package com.example.familychat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,15 +9,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.familychat.Home;
 import com.example.familychat.LogIn;
 import com.example.familychat.R;
-import com.example.familychat.model.MyInformation;
-import com.example.familychat.model.SignalRManager;
+import com.example.familychat.utils.MyInformation;
+import com.example.familychat.utils.SignalRManager;
+import com.example.familychat.utils.FileOperation;
 
 import java.io.File;
 

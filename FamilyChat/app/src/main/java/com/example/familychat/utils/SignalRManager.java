@@ -1,4 +1,4 @@
-package com.example.familychat.model;
+package com.example.familychat.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -15,7 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.familychat.R;
-import com.example.familychat.utils.ActiveUserDto;
+import com.example.familychat.model.ActiveUserDto;
+import com.example.familychat.model.ChatManager;
+import com.example.familychat.model.ChatMessage;
+import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
@@ -60,12 +64,12 @@ public class SignalRManager extends Service {
     }
 
 
-    public static void initialize(Context context,UserContext user) {
+    public static void initialize(Context context, UserContext user) {
         if (hubConnection == null) {
             hubConnection = HubConnectionBuilder.create(HUB_URL).build();
             hubConnection.start().blockingAwait();
             setupSignalR(user);
-            Toast.makeText(context, "SignalR connection initialized", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Online", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -132,7 +136,7 @@ public class SignalRManager extends Service {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     "Default Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);

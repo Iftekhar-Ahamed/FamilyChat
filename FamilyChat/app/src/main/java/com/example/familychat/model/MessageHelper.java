@@ -1,4 +1,4 @@
-package com.example.familychat.utils;
+package com.example.familychat.model;
 
 public class MessageHelper {
     public String message;

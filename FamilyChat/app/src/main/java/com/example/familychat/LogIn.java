@@ -12,12 +12,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.familychat.model.ChatManager;
-import com.example.familychat.model.MyInformation;
+import com.example.familychat.utils.MyInformation;
 import com.example.familychat.model.SaveLogInInfoDto;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.API;
 import com.example.familychat.utils.FileOperation;
-import com.example.familychat.utils.MessageHelper;
+import com.example.familychat.model.MessageHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;

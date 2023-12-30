@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,8 +14,8 @@ import com.example.familychat.adapter.ChatAdapter;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRooms;
-import com.example.familychat.model.MyInformation;
-import com.example.familychat.model.SignalRManager;
+import com.example.familychat.utils.MyInformation;
+import com.example.familychat.utils.SignalRManager;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
@@ -79,10 +80,14 @@ public class ChatActivity extends AppCompatActivity {
                     chatMessage.chatId = chatRooms.chatId;
                     chatMessage.isUser = false;
                     message = om.writeValueAsString(chatMessage);
-                    hubConnection.send("SendNotificationToClient", message);
                     chatMessage.isUser = true;
-                    postChatMessageEvent(chatMessage);
-                    messageInput.setText("");
+                    if(hubConnection!=null) {
+                        hubConnection.send("SendNotificationToClient", message);
+                        postChatMessageEvent(chatMessage);
+                        messageInput.setText("");
+                    }else {
+                        Toast.makeText(this,"Offline",Toast.LENGTH_SHORT).show();
+                    }
                 } catch (Exception ex) {
                     System.out.println(ex);
                 }

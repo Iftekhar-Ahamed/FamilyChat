@@ -1,7 +1,5 @@
 package com.example.familychat;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,15 +9,18 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.familychat.utils.ChatRoomDto;
-import com.example.familychat.utils.MessageHelper;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.MyInformation;
+import com.example.familychat.model.SaveLogInInfoDto;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.API;
-import com.google.gson.reflect.TypeToken;
+import com.example.familychat.utils.FileOperation;
+import com.example.familychat.utils.MessageHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.io.File;
 
 public class LogIn extends AppCompatActivity {
     String message;
@@ -36,7 +37,15 @@ public class LogIn extends AppCompatActivity {
         logInBtn = findViewById(R.id.login_btn);
         progressBar = findViewById(R.id.login_progress_bar);
         forgetPassBtn = findViewById(R.id.login_forget_password_btn);
+        ChatManager.clearAllChatRooms();
         setInProgress(false);
+
+        if(readUserLogInInfo()){
+            Intent home = new Intent(LogIn.this, Home.class);
+            startActivity(home);
+            finish();
+        }
+
 
         logInBtn.setOnClickListener(new View.OnClickListener(){
             public  void onClick(View v){
@@ -53,10 +62,17 @@ public class LogIn extends AppCompatActivity {
                         userData.fetchData(userDataUrl,UserContext.class,msg.token,new API.UserCallback<UserContext>(){
                             @Override
                             public void onUserReceived(UserContext user) {
-                                Intent home = new Intent(LogIn.this, Home.class);
-                                MyInformation.initialize(user,msg.token);
-                                startActivity(home);
-                                finish();
+                                try {
+                                    Intent home = new Intent(LogIn.this, Home.class);
+                                    MyInformation.initialize(user, msg.token);
+                                    ObjectMapper om = new ObjectMapper();
+                                    String info = om.writeValueAsString(new SaveLogInInfoDto(user, msg.token));
+                                    saveUserLogInInfo(info);
+                                    startActivity(home);
+                                    finish();
+                                }catch (Exception e){
+                                    System.out.println(e);
+                                }
                             }
                             @Override
                             public void onUserError(String errorMessage) {
@@ -100,5 +116,23 @@ public class LogIn extends AppCompatActivity {
             }
         }, 500);
     }
-
+    private void saveUserLogInInfo(String content){
+        File path = getApplicationContext().getFilesDir();
+        FileOperation.writeIntoFile(path,"UserLogInInfo.txt",content);
+    }
+    private boolean readUserLogInInfo(){
+        File path = getApplicationContext().getFilesDir();
+        String res = FileOperation.readFromFile(path,"UserLogInInfo.txt");
+        if(res == "NotFound"){
+            return  false;
+        }
+        try {
+            ObjectMapper om = new ObjectMapper();
+            SaveLogInInfoDto dto = om.readValue(res,SaveLogInInfoDto.class);
+            MyInformation.initialize(dto.data, dto.token);
+            return true;
+        }catch (Exception e){
+            return  false;
+        }
+    }
 }

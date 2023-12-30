@@ -1,17 +1,11 @@
 package com.example.familychat;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,20 +15,14 @@ import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRooms;
 import com.example.familychat.model.MyInformation;
 import com.example.familychat.model.SignalRManager;
-import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
-import com.microsoft.signalr.HubConnectionBuilder;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
     HubConnection hubConnection = SignalRManager.getHubConnection();
@@ -87,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
                     ObjectMapper om = new ObjectMapper();
 
                     ChatMessage chatMessage = new ChatMessage(ChatManager.getChatRooms(chatRooms.chatId).UserFriend, message);
+                    chatMessage.userName = MyInformation.data.userName;
                     chatMessage.chatId = chatRooms.chatId;
                     chatMessage.isUser = false;
                     message = om.writeValueAsString(chatMessage);

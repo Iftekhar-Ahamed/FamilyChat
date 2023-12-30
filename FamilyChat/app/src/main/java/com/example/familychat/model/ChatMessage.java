@@ -1,9 +1,5 @@
 package com.example.familychat.model;
 
-import android.content.Context;
-
-import java.util.List;
-
 public class ChatMessage extends UserContext {
     public String messageText;
     public Integer chatId;

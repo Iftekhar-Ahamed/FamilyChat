@@ -3,7 +3,9 @@ package com.example.familychat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,7 @@ import com.example.familychat.utils.API;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.example.familychat.utils.ChatRoomCallback;
 import com.example.familychat.utils.ChatRoomDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.familychat.utils.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.microsoft.signalr.HubConnection;
@@ -32,7 +34,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Home extends AppCompatActivity  {
     BottomNavigationView bottomNavigationView;
@@ -47,12 +48,26 @@ public class Home extends AppCompatActivity  {
         try {
             user = MyInformation.data;
             setContentView(R.layout.activity_home);
-
+            Switch switchService = findViewById(R.id.switchService);
             bottomNavigationView = findViewById(R.id.bottom_navigation);
             searchButton = findViewById(R.id.main_search_btn);
 
-            SignalRManager.initialize(this,user);
-            hubConnection = SignalRManager.getHubConnection();
+
+            if(SignalRManager.serviceRunning==false) {
+                switchService.setChecked(false);
+            }else {
+                switchService.setChecked(true);
+            }
+
+            switchService.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        startBroadcastService();
+                    } else {
+                        stopBroadcastService();
+                    }
+                }
+            });
 
             setupChatRooms();
 
@@ -68,9 +83,11 @@ public class Home extends AppCompatActivity  {
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     if (item.getItemId() == R.id.menu_chat) {
                         Toast.makeText(Home.this, "Chat", Toast.LENGTH_SHORT).show();
+                        setupChatRooms();
                     }
                     if (item.getItemId() == R.id.menu_profile) {
                         Toast.makeText(Home.this, "Profile", Toast.LENGTH_SHORT).show();
+                        loadProfileFragment();
                     }
                     return true;
                 }
@@ -79,6 +96,24 @@ public class Home extends AppCompatActivity  {
             System.out.println(e);
         }
         EventBus.getDefault().register(this);
+    }
+
+
+    public void stopBroadcastService(){
+        SignalRManager.serviceRunning=false;
+        SignalRManager.stopConnection();
+        Intent intent = new Intent(Home.this, SignalRManager.class);
+        intent.putExtra("status","stop");
+        stopService(intent);
+    }
+    public void startBroadcastService(){
+        SignalRManager.serviceRunning=true;
+        SignalRManager.initialize(Home.this,user);
+        hubConnection = SignalRManager.getHubConnection();
+        Intent intent = new Intent(Home.this, SignalRManager.class);
+        intent.putExtra("status","start");
+        startForegroundService(intent);
+        setupChatRooms();
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChatMessageEvent(ChatMessageEvent event) {
@@ -98,6 +133,15 @@ public class Home extends AppCompatActivity  {
         try {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.main_frame_layout, new ChatRecentFragment());
+            transaction.commit();
+        }catch (Exception ex){
+            System.out.println(ex);
+        }
+    }
+    private void loadProfileFragment() {
+        try {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.main_frame_layout, new ProfileFragment());
             transaction.commit();
         }catch (Exception ex){
             System.out.println(ex);
@@ -172,8 +216,6 @@ public class Home extends AppCompatActivity  {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(this, LogIn.class);
-        startActivity(intent);
-        finish();
     }
+
 }

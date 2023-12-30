@@ -5,12 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.familychat.ChatActivity;
+import com.example.familychat.R;
 import com.example.familychat.adapter.RecentChatAdapter;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatRooms;
@@ -47,7 +48,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
     }
     @Override
     public void onItemClick(ChatRooms chatRoom) {
-        Intent chatActivity = new Intent(getContext(),ChatActivity.class);
+        Intent chatActivity = new Intent(getContext(), ChatActivity.class);
         chatActivity.putExtra("chat",chatRoom.chatId);
         startActivity(chatActivity);
     }

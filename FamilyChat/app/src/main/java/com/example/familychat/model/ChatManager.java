@@ -1,10 +1,14 @@
 package com.example.familychat.model;
 
+import com.example.familychat.adapter.RecentChatAdapter;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChatManager {
     private static Map<Integer, ChatRooms> chatRoomsHashMap = new HashMap<>();
+    public RecentChatAdapter recentChatAdapter;
+
 
     private ChatManager() {
         // private constructor to prevent instantiation

@@ -68,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
             sendMessageBtn.setOnClickListener((v -> {
-
+                Toast.makeText(this,"Button Clicked",Toast.LENGTH_SHORT).show();
                 String message = messageInput.getText().toString().trim();
                 if (message.isEmpty())
                     return;
@@ -81,6 +81,7 @@ public class ChatActivity extends AppCompatActivity {
                     chatMessage.isUser = false;
                     message = om.writeValueAsString(chatMessage);
                     chatMessage.isUser = true;
+
                     if(hubConnection!=null) {
                         hubConnection.send("SendNotificationToClient", message);
                         postChatMessageEvent(chatMessage);
@@ -88,8 +89,9 @@ public class ChatActivity extends AppCompatActivity {
                     }else {
                         Toast.makeText(this,"Offline",Toast.LENGTH_SHORT).show();
                     }
+
                 } catch (Exception ex) {
-                    System.out.println(ex);
+                    Toast.makeText(this,ex.toString(),Toast.LENGTH_SHORT).show();
                 }
             }));
             goTobottomOfChat();

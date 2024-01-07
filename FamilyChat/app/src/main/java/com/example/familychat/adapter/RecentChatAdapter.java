@@ -13,28 +13,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.familychat.R;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.RecentChatViewHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatAdapter.ChatroomModelViewHolder>{
+public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder>{
     private final Context context;
     private final List<ChatRooms> data;
     private final OnItemClickListener onItemClickListener;
 
-    public RecentChatAdapter(Context context, List<ChatRooms> data,OnItemClickListener onItemClickListener1) {
+    public RecentChatAdapter(Context context,OnItemClickListener onItemClickListener1) {
         this.context = context;
-        this.data = data;
+        this.data = new ArrayList<>();
         this.onItemClickListener = onItemClickListener1;
     }
     @NonNull
     @Override
-    public ChatroomModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecentChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.recent_chat_recycler_row, parent, false);
-        return new ChatroomModelViewHolder(view);
+        return new RecentChatViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChatroomModelViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecentChatViewHolder holder, int position) {
         ChatRooms chatRoom = data.get(position);
         holder.usernameText.setText(chatRoom.UserFriend.userName);
         holder.lastMessageTime.setText("10:00AM");
@@ -53,27 +55,12 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatAdapter.Ch
         void onItemClick(ChatRooms chatRoom);
     }
 
-    static class ChatroomModelViewHolder extends RecyclerView.ViewHolder{
-        TextView usernameText;
-        TextView lastMessageText;
-        TextView lastMessageTime;
-        ImageView profilePic;
-
-        public ChatroomModelViewHolder(@NonNull View itemView) {
-            super(itemView);
-            usernameText = itemView.findViewById(R.id.user_name_text);
-            lastMessageText = itemView.findViewById(R.id.last_message_text);
-            lastMessageTime = itemView.findViewById(R.id.last_message_time_text);
-            profilePic = itemView.findViewById(R.id.profile_pic_image_view);
-        }
-    }
-
     @Override
     public int getItemCount() {
         return ChatManager.getAllChatRooms().size();
     }
-    public void addMessage(Integer key, ChatRooms room) {
-        ChatManager.addChatRooms(key,room);
-        notifyItemInserted(ChatManager.getAllChatRooms().size() - 1);
+    public void addChatRoom(ChatRooms room) {
+        data.add(room);
+        notifyItemInserted(data.size() - 1);
     }
 }

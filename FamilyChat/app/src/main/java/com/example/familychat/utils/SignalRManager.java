@@ -88,6 +88,13 @@ public class SignalRManager extends Service {
             System.out.println(e.toString());
         }
     }
+    private static void postChatRoomEvent(ChatRooms chatRooms) {
+        try {
+            EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
+        }catch (Exception e){
+            System.out.println(e.toString());
+        }
+    }
 
     private void getNotification(){
         try {

@@ -30,9 +30,9 @@ public class API<T> {
     public void fetchData(String url, Class<T> responseType,String token, UserCallback<T> callback) {
         try {
             RequestQueue queue = Volley.newRequestQueue(context);
-
+            url = BaseUrl+url;
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, BaseUrl+url, null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {

@@ -1,5 +1,5 @@
 package com.example.familychat;
-
+import java.util.*;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +20,8 @@ import com.example.familychat.model.ChatMessage;
 import com.example.familychat.model.ChatRoomCallback;
 import com.example.familychat.model.ChatRoomDto;
 import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.GetPreviousChatDto;
+import com.example.familychat.model.ReciveMessageDto;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.API;
 import com.example.familychat.utils.ChatMessageEvent;
@@ -31,6 +33,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +90,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         try {
             if (index < data.size()) {
                 ChatRoomDto item = data.get(index);
-                getChatRoom(item.chatFriendId, new ChatRoomCallback() {
+                getChatRoom(item.chatFriendId,item.chatId, new ChatRoomCallback() {
                     @Override
                     public void onChatRoomReceived(ChatRooms chatRooms) {
                         chatRooms.chatId = item.chatId;
@@ -108,15 +111,29 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         }
     }
 
-    public void getChatRoom(Integer chatFriendId, ChatRoomCallback callback) {
+    public void getChatRoom(Integer chatFriendId, Integer chatId, ChatRoomCallback callback) {
         ChatRooms room = new ChatRooms();
-        API<UserContext> userData = new API<UserContext>(getContext());
-        String userDataUrl = "FamilyChat/GetUserById" + "?UserId=" + chatFriendId;
-        userData.fetchData(userDataUrl, UserContext.class, MyInformation.token, new API.UserCallback<UserContext>() {
+        API<GetPreviousChatDto> userData = new API<GetPreviousChatDto>(getContext());
+        String userDataUrl = "FamilyChat/GetAllMessageByChatId" + "?ChatId=" + chatId+ "&ChatFriendId="+chatFriendId;
+        userData.fetchData(userDataUrl, GetPreviousChatDto.class, MyInformation.token, new API.UserCallback<GetPreviousChatDto>() {
             @Override
-            public void onUserReceived(UserContext user) {
-                room.UserFriend = user;
-                room.chatAdapter = new ChatAdapter(getContext(),new ArrayList<ChatMessage>());
+            public void onUserReceived(GetPreviousChatDto data) {
+                room.UserFriend = data.userFriend;
+                if(data.chatMessages.get(0).chatId!=0) {
+
+                    //region ProcessResponse
+                    List<ChatMessage> cmL = new ArrayList<ChatMessage>();
+                    for (ReciveMessageDto item:data.chatMessages) {
+                        item.isUser = (item.userId == MyInformation.data.userId);
+                        cmL.add(item);
+                    }
+                    Collections.reverse(cmL);
+                    //endregion
+
+                    room.chatAdapter = new ChatAdapter(getContext(), cmL);
+                }else {
+                    room.chatAdapter = new ChatAdapter(getContext(), new ArrayList<ChatMessage>());
+                }
                 callback.onChatRoomReceived(room);
             }
 

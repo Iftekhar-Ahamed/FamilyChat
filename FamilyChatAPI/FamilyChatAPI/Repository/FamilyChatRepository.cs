@@ -1,10 +1,12 @@
-﻿using FamilyChatAPI.DbContexts.Read;
+﻿using FamilyChatAPI.CacheData;
+using FamilyChatAPI.DbContexts.Read;
 using FamilyChatAPI.DbContexts.Write;
 using FamilyChatAPI.DTO;
 using FamilyChatAPI.Dtos;
 using FamilyChatAPI.Helper;
 using FamilyChatAPI.IRepository;
 using FamilyChatAPI.Models.Write;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -18,11 +20,13 @@ namespace FamilyChatAPI.Repository
         private readonly ReadDbContext _contextR;
         private readonly WriteDbContext _contextW;
         private readonly IJwtToken _jwtToken;
-        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext, IJwtToken jwtToken)
+        private readonly LastMessageList _lastMessageList;
+        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext, IJwtToken jwtToken,LastMessageList lastMessageList)
         {
             _contextR = readDbContext;
             _contextW = writeDbContext;
             _jwtToken = jwtToken;
+            _lastMessageList = lastMessageList;
         }
         public async Task<UserDto> GetUserById(long UserId)
         {
@@ -186,6 +190,34 @@ namespace FamilyChatAPI.Repository
                 throw ex;
             }
         }
-
+        public async Task<AllMessageByChatIdDto> GetAllMessageByChatId(long ChatId, long ChatFriendId)
+        {
+            var result = new AllMessageByChatIdDto();
+            result.UserFriend = await _contextR.TblUsers.Where(u => u.IntUserId == ChatFriendId).Select( u => new UserDto
+                                                                                                            {
+                                                                                                                UserId = u.IntUserId,
+                                                                                                                UserName = u.StrUserName,
+                                                                                                                IsUser = false,
+                                                                                                                PassWord = string.Empty,
+                                                                                                                ConnectionId = u.StrConnectionId ?? String.Empty
+                                                                                                        }).FirstOrDefaultAsync();
+            result.ChatMessages = _lastMessageList.GetMessageByChatId(ChatId);
+            if (result.ChatMessages.Count < 15)
+            {
+                int take = 15 - result.ChatMessages.Count;
+                result.ChatMessages.AddRange(await _contextR.TblMessages.Where(m => m.IntChatId == ChatId && m.IsActive == true).Select(m => new ChatMessageDto
+                {
+                    messageId = m.IntMessageId,
+                    messageText = m.StrMessage,
+                    chatId = m.IntChatId,
+                    UserId = m.IntUserId
+                }).OrderBy(m => m.messageId).Take(take).ToListAsync());
+            }
+            if(result.ChatMessages.Count == 0)
+            {
+                result.ChatMessages.Add(new ChatMessageDto { messageText = "" });
+            }
+            return result;
+        }
     }
 }

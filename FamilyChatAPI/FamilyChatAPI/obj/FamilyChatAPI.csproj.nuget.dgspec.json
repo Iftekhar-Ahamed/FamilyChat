@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {}
+    "D:\\GitHub\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {}
   },
   "projects": {
-    "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {
+    "D:\\GitHub\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
+        "projectUniqueName": "D:\\GitHub\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
         "projectName": "FamilyChatAPI",
-        "projectPath": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
-        "packagesPath": "C:\\Users\\iftek\\.nuget\\packages\\",
-        "outputPath": "D:\\GITHUB\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\obj\\",
+        "projectPath": "D:\\GitHub\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\FamilyChatAPI.csproj",
+        "packagesPath": "C:\\Users\\Iftekhar\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\FamilyChat\\FamilyChatAPI\\FamilyChatAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\iftek\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Iftekhar\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

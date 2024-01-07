@@ -34,6 +34,8 @@ public class SignalRManager extends Service {
     final String CHANNEL_ID = "default_channel";
     final int id = 2001;
     String msg;
+
+    //region SETUP
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -63,7 +65,6 @@ public class SignalRManager extends Service {
         return super.onStartCommand(intent,flag,startId);
     }
 
-
     public static void initialize(Context context, UserContext user) {
         if (hubConnection == null) {
             hubConnection = HubConnectionBuilder.create(HUB_URL).build();
@@ -81,21 +82,10 @@ public class SignalRManager extends Service {
             System.out.println(e.toString());
         }
     }
-    private static void postChatMessageEvent(ChatMessage chatMessage) {
-        try {
-            EventBus.getDefault().post(new ChatMessageEvent(chatMessage));
-        }catch (Exception e){
-            System.out.println(e.toString());
-        }
-    }
-    private static void postChatRoomEvent(ChatRooms chatRooms) {
-        try {
-            EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
-        }catch (Exception e){
-            System.out.println(e.toString());
-        }
-    }
 
+    //endregion
+
+    //region Notification
     private void getNotification(){
         try {
             hubConnection.on("broadcastMessage", (message) -> {
@@ -111,6 +101,7 @@ public class SignalRManager extends Service {
                     System.out.println(e);
                 }
             }, String.class);
+
             hubConnection.on("ReceivedPersonalNotification", (message) -> {
 
                 try {
@@ -123,6 +114,7 @@ public class SignalRManager extends Service {
                     System.out.println(e);
                 }
             }, String.class);
+
             hubConnection.on("ActiveUser", (message) -> {
                 try {
                     this.msg = message;
@@ -133,6 +125,7 @@ public class SignalRManager extends Service {
                     System.out.println(e.toString());
                 }
             }, String.class);
+
         }catch (Exception e){
             System.out.println(e);
         }
@@ -159,8 +152,9 @@ public class SignalRManager extends Service {
             notificationManager.notify((int) System.currentTimeMillis(), builder.build());
         }
     }
+    //endregion
 
-
+    //region HUBCONNECTION
     public static HubConnection getHubConnection() {
         return hubConnection;
     }
@@ -174,4 +168,22 @@ public class SignalRManager extends Service {
             hubConnection = null;
         }
     }
+    //endregion
+
+    //region EventBus
+    private static void postChatMessageEvent(ChatMessage chatMessage) {
+        try {
+            EventBus.getDefault().post(new ChatMessageEvent(chatMessage));
+        }catch (Exception e){
+            System.out.println(e.toString());
+        }
+    }
+    private static void postChatRoomEvent(ChatRooms chatRooms) {
+        try {
+            EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
+        }catch (Exception e){
+            System.out.println(e.toString());
+        }
+    }
+    //endregion
 }

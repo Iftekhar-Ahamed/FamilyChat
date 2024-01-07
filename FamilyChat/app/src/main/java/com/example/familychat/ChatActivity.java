@@ -79,6 +79,7 @@ public class ChatActivity extends AppCompatActivity {
                     chatMessage.userName = MyInformation.data.userName;
                     chatMessage.chatId = chatRooms.chatId;
                     chatMessage.isUser = false;
+                    chatMessage.userId = MyInformation.data.userId;
                     message = om.writeValueAsString(chatMessage);
                     chatMessage.isUser = true;
 

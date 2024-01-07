@@ -1,6 +1,7 @@
 ﻿using FamilyChatAPI.DTO;
 using FamilyChatAPI.Dtos;
 using FamilyChatAPI.Helper;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace FamilyChatAPI.IRepository
@@ -13,6 +14,6 @@ namespace FamilyChatAPI.IRepository
         Task<MessageHelper> CreateNewConnection(long from, long to);
         Task<List<ConnectionListDto>> GetAllConnectionByUserId(long id);
         Task<MessageHelper> SaveMessageByChatId(List<SaveMessageDto> msgList);
-
+        Task<AllMessageByChatIdDto> GetAllMessageByChatId(long ChatId, long ChatFriendId);
     }
 }

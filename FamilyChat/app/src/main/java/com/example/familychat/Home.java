@@ -121,6 +121,27 @@ public class Home extends AppCompatActivity  {
     }
     //endregion
 
+    //region LoadPreviousChat
+    private void PreviousChat() {
+        Toast.makeText(this,ChatManager.getAllChatRooms().size(),Toast.LENGTH_SHORT);
+        /*
+        API<ChatRoomDto> apiConnectionList = new API<ChatRoomDto>(getContext());
+        String connectionListUrl = "FamilyChat/GetAllConnectionByUserId" + "?id=" + MyInformation.data.userId;
+
+        apiConnectionList.fetchDataList(connectionListUrl, ChatRoomDto.class, MyInformation.token, new API.UserCallback<List<ChatRoomDto>>() {
+            @Override
+            public void onUserReceived(List<ChatRoomDto> data) {
+                processChatRooms(data, 0);
+            }
+
+            @Override
+            public void onUserError(String errorMessage) {
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });*/
+    }
+    //endregion
+
     //region EventBus
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onChatMessageEvent(ChatMessageEvent event) {
@@ -128,13 +149,7 @@ public class Home extends AppCompatActivity  {
         ChatManager.getChatRooms(chatMessage.chatId).chatAdapter.addMessage(chatMessage);
         ChatManager.getChatRooms(chatMessage.chatId).chatAdapter.notify();
     }
-    private static void postChatRoomEvent(ChatRooms chatRooms) {
-        try {
-            EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
-        }catch (Exception e){
-            System.out.println(e.toString());
-        }
-    }
+
     //endregion
 
     //region ManageFragmentTransaction

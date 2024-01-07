@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.Data.SqlClient;
+using FamilyChatAPI.CacheData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IFamilyChat, FamilyChatRepository>();
 builder.Services.AddScoped<IJwtToken,JwtTokenRepository>();
 builder.Services.AddScoped<ChatHub>();
+builder.Services.AddScoped<LastMessageList>();
 
 //SignalR
 builder.Services.AddCors(options =>

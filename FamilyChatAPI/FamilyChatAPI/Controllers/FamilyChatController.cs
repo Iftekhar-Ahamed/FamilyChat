@@ -59,5 +59,12 @@ namespace FamilyChatAPI.Controllers
         {
             return Ok(await _IFamilyChat.SaveMessageByChatId(msgList));
         }
+        //[Authorize]
+        [HttpGet]
+        [Route("GetAllMessageByChatId")]
+        public async Task<IActionResult> GetAllMessageByChatId(long ChatId,long ChatFriendId)
+        {
+            return Ok(await _IFamilyChat.GetAllMessageByChatId(ChatId,ChatFriendId));
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace FamilyChatAPI.DbContexts.Write
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=IFTEKHAR\\SQLEXPRESS;Initial Catalog = FamilyChatDB;Connect Timeout=30;Encrypt=False;Trusted_Connection=True;ApplicationIntent=ReadWrite;");
+                optionsBuilder.UseSqlServer("user id=iftekhar_SQLLogin_1;pwd=pyzxvfb2tz;data source=FamilyChatDB.mssql.somee.com;persist security info=False;initial catalog=FamilyChatDB");
             }
         }
 
@@ -56,6 +56,10 @@ namespace FamilyChatAPI.DbContexts.Write
                 entity.ToTable("tblMessage");
 
                 entity.Property(e => e.IntMessageId).HasColumnName("intMessageId");
+
+                entity.Property(e => e.DteMessageDateTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("dteMessageDateTime");
 
                 entity.Property(e => e.IntChatId).HasColumnName("intChatId");
 

@@ -22,11 +22,11 @@ import com.microsoft.signalr.HubConnection;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
-    HubConnection hubConnection = SignalRManager.getHubConnection();
     private  Integer chatId;
     private  ChatRooms chatRooms;
     private RecyclerView recyclerView;
@@ -68,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
             sendMessageBtn.setOnClickListener((v -> {
-                Toast.makeText(this,"Button Clicked",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this,"Button Clicked",Toast.LENGTH_SHORT).show();
                 String message = messageInput.getText().toString().trim();
                 if (message.isEmpty())
                     return;
@@ -80,15 +80,18 @@ public class ChatActivity extends AppCompatActivity {
                     chatMessage.chatId = chatRooms.chatId;
                     chatMessage.isUser = false;
                     chatMessage.userId = MyInformation.data.userId;
+                    chatMessage.messageDateTime = LocalDateTime.now().toString();
                     message = om.writeValueAsString(chatMessage);
                     chatMessage.isUser = true;
-
-                    if(hubConnection!=null) {
-                        hubConnection.send("SendNotificationToClient", message);
-                        postChatMessageEvent(chatMessage);
+                    if(SignalRManager.serviceRunning == true){
+                        if(SignalRManager.SendMessageToClint(message)) {
+                            postChatMessageEvent(chatMessage);
+                        }else {
+                            Toast.makeText(this,"Connection Is Not Acitve",Toast.LENGTH_SHORT).show();
+                        }
                         messageInput.setText("");
                     }else {
-                        Toast.makeText(this,"Offline",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,"You are in Offline",Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Exception ex) {

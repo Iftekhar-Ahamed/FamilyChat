@@ -1,4 +1,5 @@
 package com.example.familychat;
+import java.time.LocalDateTime;
 import java.util.*;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         super.onCreateView(inflater, container, savedInstanceState);
         View view =  inflater.inflate(R.layout.fragment_chat_recent, container, false);
         adapter = new RecentChatAdapter(getContext(), this);
+        ChatManager.recentChatAdapter = adapter;
         recyclerView = view.findViewById(R.id.recyler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
@@ -105,6 +107,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
                     }
                 });
             } else {
+                System.out.println("OK");
             }
         }catch (Exception e){
             System.out.println(e);
@@ -125,9 +128,14 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
                     List<ChatMessage> cmL = new ArrayList<ChatMessage>();
                     for (ReciveMessageDto item:data.chatMessages) {
                         item.isUser = (item.userId == MyInformation.data.userId);
+                        item.chatId = chatId;
                         cmL.add(item);
                     }
                     Collections.reverse(cmL);
+                    if(cmL.size()>0) {
+                        room.lastMessageText = cmL.get(cmL.size()-1).messageText;
+                        room.lastMessageTime = cmL.get(cmL.size()-1).messageDateTime;
+                    }
                     //endregion
 
                     room.chatAdapter = new ChatAdapter(getContext(), cmL);

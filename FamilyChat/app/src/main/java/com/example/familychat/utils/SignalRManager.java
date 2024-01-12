@@ -1,5 +1,9 @@
 package com.example.familychat.utils;
 
+import static com.microsoft.signalr.HubConnectionState.CONNECTED;
+import static com.microsoft.signalr.HubConnectionState.CONNECTING;
+import static com.microsoft.signalr.HubConnectionState.DISCONNECTED;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -186,4 +190,32 @@ public class SignalRManager extends Service {
         }
     }
     //endregion
+
+    public static boolean SendMessageToClint(String message) {
+        Integer tryed = 5;
+        while (tryed>=0) {
+
+            if (hubConnection != null && hubConnection.getConnectionState() == CONNECTED) {
+                hubConnection.send("SendNotificationToClient", message);
+                return true;
+            } else {
+
+                if (hubConnection != null) {
+                    try {
+                        hubConnection.start().blockingAwait();
+                        setupSignalR(MyInformation.data);
+                        if (hubConnection.getConnectionState() == CONNECTED) {
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
+                    }
+                }
+            }
+            tryed--;
+        }
+        return false;
+    }
+
+
 }

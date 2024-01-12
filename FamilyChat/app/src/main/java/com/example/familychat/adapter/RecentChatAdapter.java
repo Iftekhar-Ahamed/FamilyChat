@@ -4,8 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.familychat.R;
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatRooms;
+import com.example.familychat.model.ChatMessageAndTimeConverter;
 import com.example.familychat.model.RecentChatViewHolder;
 
 import java.util.ArrayList;
@@ -37,19 +36,23 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull RecentChatViewHolder holder, int position) {
-        ChatRooms chatRoom = data.get(position);
-        holder.usernameText.setText(chatRoom.UserFriend.userName);
-        holder.lastMessageTime.setText("10:00AM");
-        holder.lastMessageText.setText("Testing");
-        holder.profilePic.setImageResource(R.drawable.person_icon);
+        try {
+            ChatRooms chatRoom = data.get(position);
+            holder.usernameText.setText(chatRoom.UserFriend.userName);
+            holder.lastMessageTime.setText(ChatMessageAndTimeConverter.convertedTimeForLastChatTime(chatRoom.lastMessageTime));
+            holder.lastMessageText.setText(ChatMessageAndTimeConverter.convertMessageIntoShortMessage(chatRoom.lastMessageText));
+            holder.profilePic.setImageResource(R.drawable.person_icon);
 
-        holder.itemView.setOnClickListener(v -> {
-            if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(chatRoom);
-            }
-        });
-
+            holder.itemView.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(chatRoom);
+                }
+            });
+        }catch (Exception e){
+            System.out.println(e);
+        }
     }
+
 
     public interface OnItemClickListener {
         void onItemClick(ChatRooms chatRoom);
@@ -62,5 +65,13 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
     public void addChatRoom(ChatRooms room) {
         data.add(room);
         notifyItemInserted(data.size() - 1);
+    }
+    public void updateLastMessageText(int position) {
+        if (position >= 0 && position < data.size()) {
+            ChatRooms chatRoom = data.get(position);
+            chatRoom.lastMessageText = chatRoom.chatAdapter.messages.get(chatRoom.chatAdapter.messages.size()-1).messageText;
+            chatRoom.lastMessageTime = chatRoom.chatAdapter.messages.get(chatRoom.chatAdapter.messages.size()-1).messageDateTime;
+            notifyItemChanged(position);
+        }
     }
 }

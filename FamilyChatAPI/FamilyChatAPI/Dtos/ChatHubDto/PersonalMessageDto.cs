@@ -9,5 +9,6 @@
         public string userName { get; set; }
         public byte chatId { get; set; }
         public string messageText { get; set; }
+        public DateTime messageDateTime { get; set; }
     }
 }

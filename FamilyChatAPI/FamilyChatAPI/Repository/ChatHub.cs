@@ -1,8 +1,8 @@
-﻿using FamilyChatAPI.CacheData;
-using FamilyChatAPI.DbContexts.Read;
+﻿using FamilyChatAPI.DbContexts.Read;
 using FamilyChatAPI.DbContexts.Write;
 using FamilyChatAPI.Dtos;
 using FamilyChatAPI.Dtos.ChatHubDto;
+using FamilyChatAPI.IRepository;
 using FamilyChatAPI.Models.Read;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +16,8 @@ namespace FamilyChatAPI.Repository
     {
         private readonly ReadDbContext _contextR;
         private readonly WriteDbContext _contextW;
-        private readonly LastMessageList _lastMessageList;
-        public ChatHub(ReadDbContext contextR,WriteDbContext contextW,LastMessageList lastMessageList)
+        private readonly ILastMessages _lastMessageList;
+        public ChatHub(ReadDbContext contextR,WriteDbContext contextW,ILastMessages lastMessageList)
         {
             _contextR = contextR;
             _contextW = contextW;
@@ -33,7 +33,7 @@ namespace FamilyChatAPI.Repository
             {
                 PersonalMessageDto personalMessageDto = Newtonsoft.Json.JsonConvert.DeserializeObject<PersonalMessageDto>(message);
 
-                if (_lastMessageList.AddMessageByChatId(personalMessageDto.chatId, personalMessageDto.userId, personalMessageDto.messageText))
+                if (_lastMessageList.AddMessageByChatId(personalMessageDto.chatId, personalMessageDto.userId, personalMessageDto.messageText, personalMessageDto.messageDateTime))
                 {
                     await Clients.Client(personalMessageDto.connectionId).SendAsync("ReceivedPersonalNotification", message);
                 }

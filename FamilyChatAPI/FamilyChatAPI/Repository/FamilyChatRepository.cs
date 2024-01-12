@@ -1,5 +1,4 @@
-﻿using FamilyChatAPI.CacheData;
-using FamilyChatAPI.DbContexts.Read;
+﻿using FamilyChatAPI.DbContexts.Read;
 using FamilyChatAPI.DbContexts.Write;
 using FamilyChatAPI.DTO;
 using FamilyChatAPI.Dtos;
@@ -20,8 +19,8 @@ namespace FamilyChatAPI.Repository
         private readonly ReadDbContext _contextR;
         private readonly WriteDbContext _contextW;
         private readonly IJwtToken _jwtToken;
-        private readonly LastMessageList _lastMessageList;
-        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext, IJwtToken jwtToken,LastMessageList lastMessageList)
+        private readonly ILastMessages _lastMessageList;
+        public FamilyChatRepository(ReadDbContext readDbContext, WriteDbContext writeDbContext, IJwtToken jwtToken,ILastMessages lastMessageList)
         {
             _contextR = readDbContext;
             _contextW = writeDbContext;
@@ -193,14 +192,15 @@ namespace FamilyChatAPI.Repository
         public async Task<AllMessageByChatIdDto> GetAllMessageByChatId(long ChatId, long ChatFriendId)
         {
             var result = new AllMessageByChatIdDto();
-            result.UserFriend = await _contextR.TblUsers.Where(u => u.IntUserId == ChatFriendId).Select( u => new UserDto
-                                                                                                            {
-                                                                                                                UserId = u.IntUserId,
-                                                                                                                UserName = u.StrUserName,
-                                                                                                                IsUser = false,
-                                                                                                                PassWord = string.Empty,
-                                                                                                                ConnectionId = u.StrConnectionId ?? String.Empty
-                                                                                                        }).FirstOrDefaultAsync();
+            
+            result.UserFriend = await _contextR.TblUsers.Where(u => u.IntUserId == ChatFriendId).Select(u => new UserDto
+            {
+                UserId = u.IntUserId,
+                UserName = u.StrUserName,
+                IsUser = false,
+                PassWord = string.Empty,
+                ConnectionId = u.StrConnectionId ?? String.Empty
+            }).FirstOrDefaultAsync();
             result.ChatMessages = _lastMessageList.GetMessageByChatId(ChatId);
             if (result.ChatMessages.Count < 15)
             {
@@ -210,10 +210,11 @@ namespace FamilyChatAPI.Repository
                     messageId = m.IntMessageId,
                     messageText = m.StrMessage,
                     chatId = m.IntChatId,
-                    UserId = m.IntUserId
+                    UserId = m.IntUserId,
+                    messageDateTime = m.DteMessageDateTime,
                 }).OrderBy(m => m.messageId).Take(take).ToListAsync());
             }
-            if(result.ChatMessages.Count == 0)
+            if (result.ChatMessages.Count == 0)
             {
                 result.ChatMessages.Add(new ChatMessageDto { messageText = "" });
             }

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ChatManager {
     private static Map<Integer, ChatRooms> chatRoomsHashMap = new HashMap<>();
-    public RecentChatAdapter recentChatAdapter;
+    public static RecentChatAdapter recentChatAdapter;
 
 
     private ChatManager() {
@@ -16,6 +16,16 @@ public class ChatManager {
 
     public static void addChatRooms(Integer key, ChatRooms chatRooms) {
         chatRoomsHashMap.put(key, chatRooms);
+    }
+    public static int getIndexForKey(int key) {
+        int index = 0;
+        for (Map.Entry<Integer, ChatRooms> entry : chatRoomsHashMap.entrySet()) {
+            if (entry.getKey() == key) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
     }
 
 

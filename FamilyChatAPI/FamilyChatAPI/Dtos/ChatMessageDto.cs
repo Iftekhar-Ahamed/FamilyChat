@@ -6,5 +6,6 @@
         public String messageText {  get; set; }
         public int chatId { get; set; }
         public byte UserId { get; set; }
+        public DateTime messageDateTime { get; set; }
     }
 }

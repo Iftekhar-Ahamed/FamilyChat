@@ -33,7 +33,7 @@ namespace FamilyChatAPI.Repository
             {
                 PersonalMessageDto personalMessageDto = Newtonsoft.Json.JsonConvert.DeserializeObject<PersonalMessageDto>(message);
 
-                if (_lastMessageList.AddMessageByChatId(personalMessageDto.chatId, personalMessageDto.userId, personalMessageDto.messageText, personalMessageDto.messageDateTime))
+                if (await _lastMessageList.AddMessageByChatId(personalMessageDto.chatId, personalMessageDto.userId, personalMessageDto.messageText, personalMessageDto.messageDateTime))
                 {
                     await Clients.Client(personalMessageDto.connectionId).SendAsync("ReceivedPersonalNotification", message);
                 }

@@ -96,9 +96,10 @@ public class SignalRManager extends Service {
 
                 try {
                     ObjectMapper om = new ObjectMapper();
-                    ChatMessage msg = om.readValue(message, ChatMessage.class);
-                    ChatRooms chatRooms = ChatManager.getChatRooms(msg.chatId);
+                    ChatMessage msg = new ChatMessage();
                     this.msg = message;
+                    msg.chatId = 1;
+                    msg.userId = 2;
                     postChatMessageEvent(msg);
                     showNotification(msg.userName,msg.messageText);
                 } catch (Exception e) {

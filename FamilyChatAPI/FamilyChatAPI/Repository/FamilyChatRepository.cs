@@ -192,8 +192,10 @@ namespace FamilyChatAPI.Repository
         public async Task<AllMessageByChatIdDto> GetAllMessageByChatId(long ChatId, long ChatFriendId)
         {
             var result = new AllMessageByChatIdDto();
+
+            //await _lastMessageList.AddMessageByChatId(1,1,"Test",DateTime.Now);
             
-            result.UserFriend = await _contextR.TblUsers.Where(u => u.IntUserId == ChatFriendId).Select(u => new UserDto
+            result.UserFriend = await _contextR.TblUsers.Where(u => u.IntUserId == ChatFriendId && u.IsActive == true).Select(u => new UserDto
             {
                 UserId = u.IntUserId,
                 UserName = u.StrUserName,
@@ -201,7 +203,9 @@ namespace FamilyChatAPI.Repository
                 PassWord = string.Empty,
                 ConnectionId = u.StrConnectionId ?? String.Empty
             }).FirstOrDefaultAsync();
+
             result.ChatMessages = _lastMessageList.GetMessageByChatId(ChatId);
+
             if (result.ChatMessages.Count < 15)
             {
                 int take = 15 - result.ChatMessages.Count;
@@ -212,12 +216,13 @@ namespace FamilyChatAPI.Repository
                     chatId = m.IntChatId,
                     UserId = m.IntUserId,
                     messageDateTime = m.DteMessageDateTime,
-                }).OrderBy(m => m.messageId).Take(take).ToListAsync());
+                }).OrderByDescending(m => m.messageDateTime).Take(take).ToListAsync());
             }
             if (result.ChatMessages.Count == 0)
             {
                 result.ChatMessages.Add(new ChatMessageDto { messageText = "" });
             }
+            result.ChatMessages = result.ChatMessages.OrderByDescending(x => x.messageDateTime).ToList();
             return result;
         }
     }

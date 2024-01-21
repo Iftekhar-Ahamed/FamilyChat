@@ -23,27 +23,15 @@ namespace FamilyChatAPI.Repository
         {
             return _lastMessages.GetMessageByChatId(chatId);
         }
-        public bool AddMessageByChatId(byte ChatId, byte IntUserId, string StrMessage, DateTime dateTimeMsg)
+       
+        
+        public async Task<bool> AddMessageByChatId(byte ChatId, byte IntUserId, string StrMessage, DateTime dateTimeMsg)
         {
             long count = _lastMessages.AddMessageByChatId(ChatId, IntUserId, StrMessage,dateTimeMsg);
             if (count >= 20)
             {
-                List<TblMessage> messages = new List<TblMessage>();
-                var lastmessages = _lastMessages.GetMessageByChatId(ChatId);
-                foreach (var item in lastmessages)
-                {
-                    var msg = new TblMessage
-                    {
-                        IntChatId = (byte)item.chatId,
-                        IntUserId = (byte)item.chatId,
-                        StrMessage = item.messageText,
-                        DteMessageDateTime = item.messageDateTime,
-                        IsActive = true
-                    }; messages.Add(msg);
-                }
-                _contextW.AddRange(messages);
-                _contextW.SaveChanges();
-
+                await _lastMessages.UpdateLastMessagesCacheByChatID(ChatId);
+                _lastMessages.DeleteMessageByChatId(ChatId);
             }
             return true;
         }

@@ -50,11 +50,13 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //Dependency Injection
-builder.Services.AddSingleton<ILastMessageCache, LastMessagesCache>();
+builder.Services.AddScoped<ILastMessageCache, LastMessagesCache>();
 builder.Services.AddScoped<ILastMessages, LastMessageList>();
 builder.Services.AddScoped<IFamilyChat, FamilyChatRepository>();
 builder.Services.AddScoped<IJwtToken,JwtTokenRepository>();
 builder.Services.AddScoped<ChatHub>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<CacheBackup>();
 
 
 builder.Services.AddCors(options =>
@@ -68,7 +70,6 @@ builder.Services.AddCors(options =>
 });
 
 
-//SignalR
 string connection = builder.Configuration.GetConnectionString("MainConnection");
 builder.Services.AddDbContext<ReadDbContext>(options => options.UseSqlServer(connection), ServiceLifetime.Transient);
 builder.Services.AddDbContext<WriteDbContext>(options => options.UseSqlServer(connection), ServiceLifetime.Transient);

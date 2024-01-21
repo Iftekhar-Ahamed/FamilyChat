@@ -3,37 +3,38 @@ using FamilyChatAPI.Dtos;
 using FamilyChatAPI.Dtos.ChatHubDto;
 using FamilyChatAPI.IRepository;
 using FamilyChatAPI.Models.Write;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using TableDependency.SqlClient.Base.Messages;
+using FamilyChatAPI.Repository;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FamilyChatAPI.CacheData
 {
     public class LastMessagesCache : ILastMessageCache
     {
         private Dictionary<long, List<TblMessage>> _lastTblMessages;
-        private string fileName = "SavedLastMessagesList.txt";
-        public LastMessagesCache() {
-            try
+        private readonly WriteDbContext _contextW;
+
+        public LastMessagesCache(IMemoryCache memoryCache,WriteDbContext writeDbContext)
+        {
+            _contextW = writeDbContext;
+            if (memoryCache.TryGetValue("_lastTblMessages", out Dictionary<long, List<TblMessage>> lastTblMessages))
             {
-                string s = File.ReadAllLines(fileName).ToString();
-                if (s != "")
-                {
-                    _lastTblMessages = JsonConvert.DeserializeObject<Dictionary<long, List<TblMessage>>>(s);
-                }
-            } catch (Exception e)
+                _lastTblMessages = lastTblMessages;
+            }
+            else
             {
                 _lastTblMessages = new Dictionary<long, List<TblMessage>>();
+                var cacheEntryOption = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
+                memoryCache.Set("_lastTblMessages", _lastTblMessages, cacheEntryOption);
             }
         }
-        
-        ~LastMessagesCache() {
-            using (TextWriter tw = new StreamWriter(fileName))
-            {
-                string s = JsonConvert.SerializeObject(_lastTblMessages);
-                tw.WriteLine(s);
-            }
+        public async Task<bool> UpdateLastMessagesCacheByChatID(long chatId)
+        {
+            List<TblMessage> messages = _lastTblMessages[chatId];
+            await _contextW.AddRangeAsync(messages);
+            await _contextW.SaveChangesAsync();
+            return true;
         }
+
         public List<ChatMessageDto> GetMessageByChatId(long chatId)
         {
             List<ChatMessageDto> result = new List<ChatMessageDto>();
@@ -46,11 +47,7 @@ namespace FamilyChatAPI.CacheData
                     chatId = m.IntChatId,
                     UserId = m.IntUserId,
                     messageDateTime = m.DteMessageDateTime
-                }).OrderByDescending(m => m.messageId).Take(15).ToList();
-                if (result.Count == 0)
-                {
-                    result.Add(new ChatMessageDto { messageText = "" });
-                }
+                }).OrderByDescending(m => m.messageDateTime).ToList();
                 return result;
             }
             return result;
@@ -61,15 +58,8 @@ namespace FamilyChatAPI.CacheData
             {
                 _lastTblMessages.Add(ChatId, new List<TblMessage>());
             }
-            var id = _lastTblMessages[ChatId].Count();
-            if (id == 0)
-            {
-                _lastTblMessages[ChatId] = new List<TblMessage>();
-            }
-
             _lastTblMessages[ChatId].Add(new TblMessage
             {
-                IntMessageId = id,
                 IntChatId = ChatId,
                 IntUserId = IntUserId,
                 StrMessage = StrMessage,
@@ -83,5 +73,23 @@ namespace FamilyChatAPI.CacheData
             _lastTblMessages[ChatId] = new List<TblMessage>();
             return true;
         }
+        public async Task<bool> BackupCacheToDatabase()
+        {
+            try
+            {
+                foreach (var key in _lastTblMessages)
+                {
+                    await _contextW.AddRangeAsync(key.Value);
+                }
+                _lastTblMessages.Clear();
+                await _contextW.SaveChangesAsync();
+                
+            }catch (Exception ex)
+            {
+                throw ex;
+            }
+            return true;
+        }
     }
+
 }

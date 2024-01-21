@@ -23,7 +23,7 @@ public class CacheBackup : BackgroundService
                 await _lastMessageCache.BackupCacheToDatabase();
 
             }
-            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
         }
     }
     

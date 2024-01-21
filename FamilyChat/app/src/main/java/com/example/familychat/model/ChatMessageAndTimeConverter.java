@@ -13,13 +13,10 @@ public class ChatMessageAndTimeConverter {
 
     public static String convertedTimeForLastChatTime(String dt) {
         try {
-            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            LocalDateTime dateTime = LocalDateTime.parse(dt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             DateTimeFormatter outputFormatterTime = DateTimeFormatter.ofPattern(patternTime);
             DateTimeFormatter outputFormatterDate = DateTimeFormatter.ofPattern(patternDate);
 
-            LocalDateTime dateTime = LocalDateTime.parse(dt, inputFormatter);
-
-            // Check if the date is today
             LocalDate today = LocalDate.now();
             LocalDate messageDate = dateTime.toLocalDate();
 

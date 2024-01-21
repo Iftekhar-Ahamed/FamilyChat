@@ -41,6 +41,7 @@ import java.util.Map;
 public class ChatRecentFragment extends Fragment implements RecentChatAdapter.OnItemClickListener{
     RecyclerView recyclerView;
     public RecentChatAdapter adapter;
+    private Integer isChatRoomLoaded = -1;
     ChatRecentFragment(){
 
     }
@@ -54,7 +55,11 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         recyclerView = view.findViewById(R.id.recyler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
-        setupChatRooms();
+
+        Thread isChatRoomLoadedCheckingRunnable = new Thread(new IsChatRoomLoadedCheckingRunnable());
+        isChatRoomLoadedCheckingRunnable.start();
+
+
         return view;
     }
     @Override
@@ -70,6 +75,32 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         }
     }
 
+
+    private class IsChatRoomLoadedCheckingRunnable implements Runnable {
+        @Override
+        public void run() {
+            Integer tryed = 5;
+            while (getFlag() != 1 && tryed>0) {
+                if(getFlag() == -1){
+                    setFlag(0);
+                    setupChatRooms();
+                    tryed--;
+                    try {
+                        Thread.sleep(1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    private synchronized int getFlag() {
+        return isChatRoomLoaded;
+    }
+    private synchronized void setFlag(int newValue) {
+        this.isChatRoomLoaded = newValue;
+    }
+
     //region GetChatRoom
     private void setupChatRooms() {
         API<ChatRoomDto> apiConnectionList = new API<ChatRoomDto>(getContext());
@@ -83,6 +114,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
 
             @Override
             public void onUserError(String errorMessage) {
+                setFlag(-1);
                 Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -107,10 +139,11 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
                     }
                 });
             } else {
-                System.out.println("OK");
+                setFlag(1);
             }
         }catch (Exception e){
-            System.out.println(e);
+            setFlag(-1);
+            Toast.makeText(getContext(),e.toString(),Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -147,11 +180,11 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
 
             @Override
             public void onUserError(String errorMessage) {
+                setFlag(-1);
                 callback.onChatRoomError(errorMessage);
             }
         });
     }
     //endregion
-
 
 }

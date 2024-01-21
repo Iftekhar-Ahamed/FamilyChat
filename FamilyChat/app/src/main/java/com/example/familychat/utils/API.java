@@ -40,13 +40,13 @@ public class API<T> {
                                 T result = om.readValue(response.toString(), responseType);
                                 callback.onUserReceived(result);
                             } catch (Exception e) {
-                                callback.onUserError("Error parsing response data");
+                                callback.onUserError(e.toString());
                             }
                         }
                     },  new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            callback.onUserError("Error fetching data");
+                            callback.onUserError(error.toString());
                         }
                     }) {
                 @Override
@@ -58,7 +58,7 @@ public class API<T> {
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
-            callback.onUserError("Error in fetchData");
+            callback.onUserError(e.toString());
         }
     }
 
@@ -80,13 +80,13 @@ public class API<T> {
                                 List<T> result = om.readValue(response.toString(), om.getTypeFactory().constructCollectionType(List.class, responseType));
                                 callback.onUserReceived(result);
                             } catch (Exception e) {
-                                callback.onUserError("Error parsing response data");
+                                callback.onUserError(e.toString());
                             }
                         }
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            callback.onUserError("Error fetching data");
+                            callback.onUserError(error.toString());
                         }
                     }) {
                 @Override
@@ -99,7 +99,7 @@ public class API<T> {
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
-            callback.onUserError("Error in fetchData");
+            callback.onUserError(e.toString());
         }
     }
 

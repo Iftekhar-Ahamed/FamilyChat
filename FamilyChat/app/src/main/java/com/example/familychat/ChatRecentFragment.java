@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -41,6 +42,7 @@ import java.util.Map;
 public class ChatRecentFragment extends Fragment implements RecentChatAdapter.OnItemClickListener{
     RecyclerView recyclerView;
     public RecentChatAdapter adapter;
+    ProgressBar progressBar;
     private Integer isChatRoomLoaded = -1;
     ChatRecentFragment(){
 
@@ -53,8 +55,11 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         adapter = new RecentChatAdapter(getContext(), this);
         ChatManager.recentChatAdapter = adapter;
         recyclerView = view.findViewById(R.id.recyler_view);
+        progressBar = view.findViewById(R.id.recentchatFrag_progress_bar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+
+        setInProgress(true);
 
         Thread isChatRoomLoadedCheckingRunnable = new Thread(new IsChatRoomLoadedCheckingRunnable());
         isChatRoomLoadedCheckingRunnable.start();
@@ -75,7 +80,17 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         }
     }
 
+    void setInProgress(boolean inProgress){
+        if(inProgress){
+            progressBar.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }else{
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
 
+    //region GetChatRoom
     private class IsChatRoomLoadedCheckingRunnable implements Runnable {
         @Override
         public void run() {
@@ -92,6 +107,13 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
                     }
                 }
             }
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setInProgress(false);
+                }
+            });
+
         }
     }
     private synchronized int getFlag() {
@@ -100,8 +122,6 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
     private synchronized void setFlag(int newValue) {
         this.isChatRoomLoaded = newValue;
     }
-
-    //region GetChatRoom
     private void setupChatRooms() {
         API<ChatRoomDto> apiConnectionList = new API<ChatRoomDto>(getContext());
         String connectionListUrl = "FamilyChat/GetAllConnectionByUserId" + "?id=" + MyInformation.data.userId;

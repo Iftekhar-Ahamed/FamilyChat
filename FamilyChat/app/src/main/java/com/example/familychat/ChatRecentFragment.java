@@ -29,6 +29,7 @@ import com.example.familychat.utils.API;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.example.familychat.utils.ChatRoomEvent;
 import com.example.familychat.utils.MyInformation;
+import com.example.familychat.utils.TrackingActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -71,6 +72,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
     public void onItemClick(ChatRooms chatRoom) {
         Intent chatActivity = new Intent(getContext(), ChatActivity.class);
         chatActivity.putExtra("chat",chatRoom.chatId);
+        TrackingActivity.trackingActivity.setChatId(chatRoom.chatId);
         startActivity(chatActivity);
     }
     public void addDataToAdapter(ChatRooms newData) {

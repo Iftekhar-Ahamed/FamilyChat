@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.example.familychat.NotificationActivity;
 import com.example.familychat.R;
 import com.example.familychat.model.ActiveUserDto;
 import com.example.familychat.model.ChatManager;
@@ -97,11 +99,9 @@ public class SignalRManager extends Service {
                 try {
                     ObjectMapper om = new ObjectMapper();
                     ChatMessage msg = new ChatMessage();
-                    this.msg = message;
+                    msg.messageText = message;
                     msg.chatId = 1;
                     msg.userId = 2;
-                    postChatMessageEvent(msg);
-                    showNotification(msg.userName,msg.messageText);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -114,7 +114,7 @@ public class SignalRManager extends Service {
                     ChatMessage msg = om.readValue(message, ChatMessage.class);
                     this.msg = message;
                     postChatMessageEvent(msg);
-                    showNotification(msg.userName,msg.messageText);
+                    postChatNotificationEvent(msg.userName,msg.messageText,msg.chatId);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -135,28 +135,8 @@ public class SignalRManager extends Service {
             System.out.println(e);
         }
     }
-    private void showNotification(String title, String content) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Default Channel",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.launcher_icon)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        if (notificationManager != null) {
-            notificationManager.notify((int) System.currentTimeMillis(), builder.build());
-        }
-    }
+
     //endregion
 
     //region HUBCONNECTION
@@ -183,6 +163,13 @@ public class SignalRManager extends Service {
             System.out.println(e.toString());
         }
     }
+    private static void postChatNotificationEvent(String title,String content,Integer chatid) {
+        try {
+            EventBus.getDefault().post(new NotificationEvent(title,content,chatid));
+        }catch (Exception e){
+            System.out.println(e.toString());
+        }
+    }
     private static void postChatRoomEvent(ChatRooms chatRooms) {
         try {
             EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
@@ -197,6 +184,7 @@ public class SignalRManager extends Service {
         while (tryed>=0) {
 
             if (hubConnection != null && hubConnection.getConnectionState() == CONNECTED) {
+                //hubConnection.send("SendNotificationToAll", message);
                 hubConnection.send("SendNotificationToClient", message);
                 return true;
             } else {

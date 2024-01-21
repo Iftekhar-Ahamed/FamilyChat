@@ -1,6 +1,12 @@
 package com.example.familychat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
@@ -10,13 +16,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
 import com.example.familychat.utils.MyInformation;
+import com.example.familychat.utils.NotificationEvent;
 import com.example.familychat.utils.SignalRManager;
 import com.example.familychat.model.UserContext;
 import com.example.familychat.utils.ChatMessageEvent;
+import com.example.familychat.utils.TrackingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -31,6 +40,9 @@ public class Home extends AppCompatActivity  {
     private static final String CHAT_FRAG_TAG = "chatRecentFrag";
     private static final String PROFILE_FRAG_TAG = "profileFrag";
     private  ChatRecentFragment chatRecentFrag ;
+    public Home(){
+        TrackingActivity ob = new TrackingActivity();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +60,6 @@ public class Home extends AppCompatActivity  {
             }else {
                 switchService.setChecked(true);
             }
-
 
             //region Button
 
@@ -117,6 +128,13 @@ public class Home extends AppCompatActivity  {
             ChatManager.getChatRooms(chatMessage.chatId).chatAdapter.removeMessage(0);
         }
 
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatNotificationEvent(NotificationEvent event) {
+        Integer c = TrackingActivity.trackingActivity.getChatId();
+        if(c!=event.chatId) {
+            makeNotification(event.title, event.content);
+        }
     }
 
     //endregion
@@ -202,4 +220,35 @@ public class Home extends AppCompatActivity  {
         super.onDestroy();
     }
     //endregion
+
+
+    public void makeNotification(String title,String content) {
+        String chanelID = "CHANNEL_ID_NOTIFICATION";
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        builder.setSmallIcon(R.drawable.launcher_icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("msg", content);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+            notificationManager.notify(0, builder.build());
+        }
+    }
+
 }

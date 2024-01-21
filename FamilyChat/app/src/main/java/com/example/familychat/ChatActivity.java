@@ -17,6 +17,7 @@ import com.example.familychat.model.ChatRooms;
 import com.example.familychat.utils.MyInformation;
 import com.example.familychat.utils.SignalRManager;
 import com.example.familychat.utils.ChatMessageEvent;
+import com.example.familychat.utils.TrackingActivity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.signalr.HubConnection;
 
@@ -121,5 +122,9 @@ public class ChatActivity extends AppCompatActivity {
             recyclerView.smoothScrollToPosition(itemCount - 1);
         }
     }
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        TrackingActivity.trackingActivity.setChatId(0);
+    }
 }

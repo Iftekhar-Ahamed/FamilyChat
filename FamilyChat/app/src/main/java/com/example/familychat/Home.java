@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.familychat.model.ChatManager;
 import com.example.familychat.model.ChatMessage;
+import com.example.familychat.utils.ChatRoomEvent;
 import com.example.familychat.utils.MyInformation;
 import com.example.familychat.utils.NotificationEvent;
 import com.example.familychat.utils.SignalRManager;
@@ -39,7 +40,7 @@ public class Home extends AppCompatActivity  {
     UserContext user;
     private static final String CHAT_FRAG_TAG = "chatRecentFrag";
     private static final String PROFILE_FRAG_TAG = "profileFrag";
-    private  ChatRecentFragment chatRecentFrag ;
+
     public Home(){
         TrackingActivity ob = new TrackingActivity();
     }
@@ -47,7 +48,6 @@ public class Home extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
             user = MyInformation.data;
             setContentView(R.layout.activity_home);
@@ -67,6 +67,7 @@ public class Home extends AppCompatActivity  {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
                         startBroadcastService();
+                        //EventBus.getDefault().post(new NotificationEvent("","",1));
                     } else {
                         stopBroadcastService();
                     }
@@ -108,7 +109,7 @@ public class Home extends AppCompatActivity  {
         intent.putExtra("status","stop");
         stopService(intent);
     }
-    public void startBroadcastService(){
+    public synchronized void startBroadcastService(){
         SignalRManager.serviceRunning=true;
         SignalRManager.initialize(Home.this,user);
         Intent intent = new Intent(Home.this, SignalRManager.class);
@@ -116,7 +117,6 @@ public class Home extends AppCompatActivity  {
         startForegroundService(intent);
     }
     //endregion
-
 
     //region EventBus
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -129,13 +129,7 @@ public class Home extends AppCompatActivity  {
         }
 
     }
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onChatNotificationEvent(NotificationEvent event) {
-        Integer c = TrackingActivity.trackingActivity.getChatId();
-        if(c!=event.chatId) {
-            makeNotification(event.title, event.content);
-        }
-    }
+
 
     //endregion
 
@@ -145,7 +139,6 @@ public class Home extends AppCompatActivity  {
             case CHAT_FRAG_TAG:
                 if (getSupportFragmentManager().findFragmentByTag(CHAT_FRAG_TAG) != null) {
                     // If the fragment exists, show it.
-                    chatRecentFrag = (ChatRecentFragment) getSupportFragmentManager().findFragmentByTag(CHAT_FRAG_TAG);
                     getSupportFragmentManager().beginTransaction()
                             .setCustomAnimations(
                                     R.anim.enter_left,   // enter from left
@@ -165,7 +158,6 @@ public class Home extends AppCompatActivity  {
                                     R.anim.fade_in,   // popEnter
                                     R.anim.exit_left  // popExit
                             ).add(R.id.main_frame_layout, new ChatRecentFragment(), CHAT_FRAG_TAG).commit();
-                    chatRecentFrag = (ChatRecentFragment) getSupportFragmentManager().findFragmentByTag(CHAT_FRAG_TAG);
                 }
                 if (getSupportFragmentManager().findFragmentByTag(PROFILE_FRAG_TAG) != null) {
                     // If the other fragment is visible, hide it.
@@ -220,35 +212,4 @@ public class Home extends AppCompatActivity  {
         super.onDestroy();
     }
     //endregion
-
-
-    public void makeNotification(String title,String content) {
-        String chanelID = "CHANNEL_ID_NOTIFICATION";
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(getApplicationContext(), chanelID);
-        builder.setSmallIcon(R.drawable.launcher_icon)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("msg", content);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
-        builder.setContentIntent(pendingIntent);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel =
-                    notificationManager.getNotificationChannel(chanelID);
-            if (notificationChannel == null) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
-                notificationChannel.setLightColor(Color.GREEN);
-                notificationChannel.enableVibration(true);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-            notificationManager.notify(0, builder.build());
-        }
-    }
-
 }

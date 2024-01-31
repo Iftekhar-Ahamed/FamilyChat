@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.Toast;
@@ -71,7 +72,7 @@ public class SignalRManager extends Service {
         return super.onStartCommand(intent,flag,startId);
     }
 
-    public static void initialize(Context context, UserContext user) {
+    public synchronized static void initialize(Context context, UserContext user) {
         if (hubConnection == null) {
             hubConnection = HubConnectionBuilder.create(HUB_URL).build();
             hubConnection.start().blockingAwait();
@@ -80,7 +81,7 @@ public class SignalRManager extends Service {
         }
     }
 
-    private static void setupSignalR(UserContext user) {
+    private synchronized static void setupSignalR(UserContext user) {
         try {
             hubConnection.send("SaveUserConnection", user.userId);
             hubConnection.send("NotifyOnConnectionIdUpdate", user.userId);
@@ -91,7 +92,7 @@ public class SignalRManager extends Service {
 
     //endregion
 
-    //region Notification
+    //region Message Handle
     private void getNotification(){
         try {
             hubConnection.on("broadcastMessage", (message) -> {
@@ -102,6 +103,7 @@ public class SignalRManager extends Service {
                     msg.messageText = message;
                     msg.chatId = 1;
                     msg.userId = 2;
+                    postChatNotificationEvent("Iftekhar","Test Message",1);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -115,6 +117,7 @@ public class SignalRManager extends Service {
                     this.msg = message;
                     postChatMessageEvent(msg);
                     postChatNotificationEvent(msg.userName,msg.messageText,msg.chatId);
+
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -135,6 +138,34 @@ public class SignalRManager extends Service {
             System.out.println(e);
         }
     }
+    public static boolean SendMessageToClint(String message) {
+        Integer tryed = 5;
+        while (tryed>=0) {
+
+            if (hubConnection != null && hubConnection.getConnectionState() == CONNECTED) {
+                //hubConnection.send("SendNotificationToAll", message);
+                hubConnection.send("SendNotificationToClient", message);
+                return true;
+            } else {
+
+                if (hubConnection != null) {
+                    try {
+                        hubConnection.start().blockingAwait();
+                        setupSignalR(MyInformation.data);
+                        if (hubConnection.getConnectionState() == CONNECTED) {
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
+                    }
+                }
+            }
+            tryed--;
+        }
+        return false;
+    }
+
+
 
 
     //endregion
@@ -163,13 +194,7 @@ public class SignalRManager extends Service {
             System.out.println(e.toString());
         }
     }
-    private static void postChatNotificationEvent(String title,String content,Integer chatid) {
-        try {
-            EventBus.getDefault().post(new NotificationEvent(title,content,chatid));
-        }catch (Exception e){
-            System.out.println(e.toString());
-        }
-    }
+
     private static void postChatRoomEvent(ChatRooms chatRooms) {
         try {
             EventBus.getDefault().post(new ChatRoomEvent(chatRooms));
@@ -179,32 +204,42 @@ public class SignalRManager extends Service {
     }
     //endregion
 
-    public static boolean SendMessageToClint(String message) {
-        Integer tryed = 5;
-        while (tryed>=0) {
+    //region Notification
+    private void postChatNotificationEvent(String title,String content,Integer chatId) {
 
-            if (hubConnection != null && hubConnection.getConnectionState() == CONNECTED) {
-                //hubConnection.send("SendNotificationToAll", message);
-                hubConnection.send("SendNotificationToClient", message);
-                return true;
-            } else {
-
-                if (hubConnection != null) {
-                    try {
-                        hubConnection.start().blockingAwait();
-                        setupSignalR(MyInformation.data);
-                        if (hubConnection.getConnectionState() == CONNECTED) {
-                            return true;
-                        }
-                    } catch (Exception e) {
-                        System.out.println(e.toString());
-                    }
-                }
-            }
-            tryed--;
+        Integer c = TrackingActivity.trackingActivity.getChatId();
+        if(c!=chatId) {
+            makeNotification(title, content);
         }
-        return false;
     }
-
+    public void makeNotification(String title,String content) {
+        String chanelID = "CHANNEL_ID_NOTIFICATION";
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        builder.setSmallIcon(R.drawable.launcher_icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("msg", content);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+            notificationManager.notify(0, builder.build());
+        }
+    }
+    //endregion
 
 }

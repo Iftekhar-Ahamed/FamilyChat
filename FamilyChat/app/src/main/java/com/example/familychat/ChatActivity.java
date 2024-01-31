@@ -69,7 +69,6 @@ public class ChatActivity extends AppCompatActivity {
 
 
             sendMessageBtn.setOnClickListener((v -> {
-                //Toast.makeText(this,"Button Clicked",Toast.LENGTH_SHORT).show();
                 String message = messageInput.getText().toString().trim();
                 if (message.isEmpty())
                     return;

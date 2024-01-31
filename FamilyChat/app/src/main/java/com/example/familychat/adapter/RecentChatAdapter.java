@@ -62,10 +62,12 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
     public int getItemCount() {
         return ChatManager.getAllChatRooms().size();
     }
+
     public void addChatRoom(ChatRooms room) {
         data.add(room);
         notifyItemInserted(data.size() - 1);
     }
+
     public void updateLastMessageText(int position) {
         if (position >= 0 && position < data.size()) {
             ChatRooms chatRoom = data.get(position);

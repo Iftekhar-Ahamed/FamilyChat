@@ -27,7 +27,7 @@ public class API<T> {
         this.context = context;
     }
 
-    public void fetchData(String url, Class<T> responseType,String token, UserCallback<T> callback) {
+    public synchronized void fetchData(String url, Class<T> responseType,String token, UserCallback<T> callback) {
         try {
             RequestQueue queue = Volley.newRequestQueue(context);
             url = BaseUrl+url;
@@ -67,7 +67,7 @@ public class API<T> {
         void onUserError(String errorMessage);
     }
 
-    public void fetchDataList(String url, Class<T> responseType, String token, UserCallback<List<T>> callback) {
+    public synchronized void fetchDataList(String url, Class<T> responseType, String token, UserCallback<List<T>> callback) {
         try {
             RequestQueue queue = Volley.newRequestQueue(context);
 

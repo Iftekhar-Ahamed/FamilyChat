@@ -29,6 +29,7 @@ import com.example.familychat.utils.API;
 import com.example.familychat.utils.ChatMessageEvent;
 import com.example.familychat.utils.ChatRoomEvent;
 import com.example.familychat.utils.MyInformation;
+import com.example.familychat.utils.NotificationEvent;
 import com.example.familychat.utils.TrackingActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -45,11 +46,11 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
     public RecentChatAdapter adapter;
     ProgressBar progressBar;
     private Integer isChatRoomLoaded = -1;
-    ChatRecentFragment(){
+    Thread isChatRoomLoadedCheckingRunnable;
 
-    }
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    ChatRecentFragment(){}
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 
         super.onCreateView(inflater, container, savedInstanceState);
         View view =  inflater.inflate(R.layout.fragment_chat_recent, container, false);
@@ -59,15 +60,13 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         progressBar = view.findViewById(R.id.recentchatFrag_progress_bar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
-
         setInProgress(true);
-
-        Thread isChatRoomLoadedCheckingRunnable = new Thread(new IsChatRoomLoadedCheckingRunnable());
+        isChatRoomLoadedCheckingRunnable = new Thread(new IsChatRoomLoadedCheckingRunnable());
         isChatRoomLoadedCheckingRunnable.start();
-
-
+        EventBus.getDefault().register(this);
         return view;
     }
+
     @Override
     public void onItemClick(ChatRooms chatRoom) {
         Intent chatActivity = new Intent(getContext(), ChatActivity.class);
@@ -75,11 +74,28 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         TrackingActivity.trackingActivity.setChatId(chatRoom.chatId);
         startActivity(chatActivity);
     }
+
     public void addDataToAdapter(ChatRooms newData) {
-        if (adapter != null) {
-            adapter.addChatRoom(newData);
-            adapter.notifyDataSetChanged();
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (adapter != null) {
+                    adapter.addChatRoom(newData);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChatNotificationEvent(NotificationEvent event) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setupChatRooms();
+            }
+        });
     }
 
     void setInProgress(boolean inProgress){
@@ -115,7 +131,6 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
                     setInProgress(false);
                 }
             });
-
         }
     }
     private synchronized int getFlag() {
@@ -124,7 +139,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
     private synchronized void setFlag(int newValue) {
         this.isChatRoomLoaded = newValue;
     }
-    private void setupChatRooms() {
+    public synchronized void setupChatRooms() {
         API<ChatRoomDto> apiConnectionList = new API<ChatRoomDto>(getContext());
         String connectionListUrl = "FamilyChat/GetAllConnectionByUserId" + "?id=" + MyInformation.data.userId;
 
@@ -169,7 +184,7 @@ public class ChatRecentFragment extends Fragment implements RecentChatAdapter.On
         }
     }
 
-    public void getChatRoom(Integer chatFriendId, Integer chatId, ChatRoomCallback callback) {
+    public synchronized void getChatRoom(Integer chatFriendId, Integer chatId, ChatRoomCallback callback) {
         ChatRooms room = new ChatRooms();
         API<GetPreviousChatDto> userData = new API<GetPreviousChatDto>(getContext());
         String userDataUrl = "FamilyChat/GetAllMessageByChatId" + "?ChatId=" + chatId+ "&ChatFriendId="+chatFriendId;
